@@ -1,0 +1,5 @@
+#!/bin/bash
+cd src
+swig -python c_module.i
+gcc --shared -fPIC *.c -o _c_module.so -lGL -I/usr/include/python2.5
+#gcc --shared *.c -o _c_module.so -lGL -I/usr/include/python2.5

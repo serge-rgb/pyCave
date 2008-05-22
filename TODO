@@ -1,0 +1,20 @@
+Document classes/funcs
+
+Game:
+Make obstacles always be inside tunnel.
+Make obstacles not block tunnel.
+Hi-scores
+
+Effects:
+Sprite system
+?Write shader for tunnel shadow volumes
+Write shader for non-black shadows
+Separate display list for obstacles.
+
+
+UI:
+Menu
+Hi-scores display
+
+
+
