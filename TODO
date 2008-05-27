@@ -3,12 +3,15 @@ Document classes/funcs
 Game:
 Make obstacles always be inside tunnel.
 Make obstacles not block tunnel.
+Make it more difficult.
+Make a ship.
+Make objects.
 Hi-scores
 
 Effects:
 Sprite system
-?Write shader for tunnel shadow volumes
-Write shader for non-black shadows
+Write tunnel shadow volumes
+?Write shader for non-black shadows
 Separate display list for obstacles.
 
 

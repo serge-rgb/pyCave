@@ -21,7 +21,7 @@ class Ship(Model):
     Extends Model class to define the ship.
     '''
     def __init__(self,game):
-        Model.__init__(self,'../media/Hmodel.obj','../media/model.tga')
+        Model.__init__(self,'media/Hmodel.obj','media/model.tga')
         self.createDisplayList()
         self.game = game
         

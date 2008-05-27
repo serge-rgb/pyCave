@@ -1,0 +1,2 @@
+Copy pyopengl and setuptools eggs from the Python site-packages to the distribution directory.
+Modify w32setup.py if versions differ

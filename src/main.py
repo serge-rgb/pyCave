@@ -13,6 +13,11 @@
 #    You should have received a copy of the GNU General Public License
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+import os
+#TODO: Only if in windows:
+sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
+sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8-py2.5.egg"))
 
 from renderer import *
 
