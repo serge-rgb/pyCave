@@ -1,8 +1,0 @@
-#!/bin/sh
-cd src
-
-rm c_module_*
-rm _c_module*
-rm c_module.py*
-rm *.pyc
-

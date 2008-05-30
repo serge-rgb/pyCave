@@ -26,10 +26,10 @@ class Ship(Model):
         self.game = game
         
         #Standard acceleration and velocity.
-        self.accel = 80  # units / time^2
-        self.vel = 100  # units / time
+        self.accel = 100  # units / time^2
+        self.vel = 50  # units / time
 
-        self.pos = (0,-30,0)
+        self.pos = (0,10,0)
 
     
     def idle(self,diff):

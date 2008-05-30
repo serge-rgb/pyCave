@@ -66,12 +66,12 @@ class Tunnel:
     def __init__(self):
         #TODO: Change this to an array to save memory?
         self.rings = []
-        self.maxRad = 30
-        self.minRad = 20
+        self.maxRad = 40
+        self.minRad = 30
         self.minOffset = -10
         self.maxOffset = 10
         self.scale = 2.0
-        self.sineScale = 0.02
+        self.sineScale = 0.04
         self.sineOffset = 30
 
         
