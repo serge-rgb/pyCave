@@ -30,12 +30,6 @@ class Renderer(Game):
         '''
         Game.__init__(self)
 
-        #=====
-        #Test sprite
-
-        self.spr = Sprite('media/smoke.tga')
-        #===
-
 
         #LIGHTING ===========
         glEnable(GL_LIGHTING)
@@ -85,25 +79,30 @@ class Renderer(Game):
         glActiveTexture(GL_TEXTURE0)
         #Solid stuff
 
-        # NON-SHADOW NON-TEXTURED CASTERS
+        # NON-SHADOW-CASTERS NON-TEXTURED 
         if not mode == 1:
             self.tunnel.draw()
 
-        # TEXTURED STUFF==================
+        # SOLID TEXTURED Casters==================
         glActiveTexture(GL_TEXTURE1)
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
         self.ship.draw()
-        self.spr.draw()
+        # Translucent textured stuff===
+        
+        # Translucent textured non-shadow-casters==
+        if not mode ==1:
+            self.ship.drawSmoke()
+
         glDisable(GL_TEXTURE_2D)
         glDisable(GL_BLEND)
         glActiveTexture(GL_TEXTURE0)
         #=================================
         
     def gameCamera(self):
-        gluLookAt(camera.posx,camera.posy,camera.posz #-50
-                ,camera.lookx,camera.looky,camera.lookz
-                ,camera.normalx,camera.normaly,camera.normalz) 
+        gluLookAt(camera.pos[0],camera.pos[1],camera.pos[2] #-50
+                ,camera.lookat[0],camera.lookat[1],camera.lookat[2]
+                ,camera.normal[0],camera.normal[1],camera.normal[2]) 
 
     def renderFromEye(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
@@ -145,7 +144,6 @@ class Renderer(Game):
 
     def clean(self):
         '''
-        No docs d00d.
         '''
         Game.clean(self)
 

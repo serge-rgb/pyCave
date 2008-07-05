@@ -76,8 +76,9 @@ class Game(Interface):
         diff = time.time() - self.time
         crashed = collision.checkTunnel(self.ship,self.tunnel)
         if crashed:
-#            self.end()
-            time.sleep(0.01)
+            self.end()
+#            time.sleep(0.01)
+
         self.ship.idle(diff)
         self.tunnel.move(diff)
         

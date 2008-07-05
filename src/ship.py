@@ -15,6 +15,16 @@
 
 
 from model import *
+from sprite import *
+from random import random
+
+fname = 'media/smoke.tga' #smoke texture
+
+smokeScale = 0.6
+transInterval = 0.1
+scaleInterval = 0.003
+rotateInterval = 0.25
+scaleLimit = 5
 
 class Ship(Model):
     '''
@@ -24,6 +34,12 @@ class Ship(Model):
         Model.__init__(self,'media/Hmodel.obj','media/model.tga')
         self.createDisplayList()
         self.game = game
+        self.smoke = [] #List of smoke sprites.
+        spr = Sprite(smokeScale)
+        spr.newTexture(fname)
+        self.image = spr.image
+        self.smoke.append(spr)
+        self.addSmoke()
         
         #Standard acceleration and velocity.
         self.accel = 100  # units / time^2
@@ -36,11 +52,11 @@ class Ship(Model):
         '''
         Move, self-rotate to look alive.
         '''
+        self.smokeIdle() 
         self.fall(diff)
     
     def draw(self):
         Model.draw(self)
-
         
     def fall(self,deltatime):
         #Am I pressing space to lift up?
@@ -64,3 +80,30 @@ class Ship(Model):
             
     def clean(self):
         self.freeList()
+
+    #Smoke stuff=======================
+
+    def addSmoke(self):
+        spr = Sprite(smokeScale)
+        spr.setTexture(self.image)
+        spr.ypos = self.pos[1]
+        spr.trans = 0.0
+        self.smoke.insert(0,spr)
+        
+    def smokeIdle(self):
+        if self.smoke[0].trans >= 10:
+            self.addSmoke()
+        for spr in self.smoke:
+            spr.trans += transInterval
+            spr.xpos -= transInterval
+            spr.scale += scaleInterval
+        
+            spr.rotate += rotateInterval
+            if spr.scale >= scaleLimit:
+                self.smoke.remove(spr)
+                if len(self.smoke) == 0:
+                    self.addSmoke()
+
+    def drawSmoke(self):
+        for spr in self.smoke:
+            spr.draw()

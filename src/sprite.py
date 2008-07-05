@@ -15,6 +15,7 @@
 
 from OpenGL.GL import *
 from tga import *
+import random
 
 class Sprite:
     '''
@@ -22,17 +23,36 @@ class Sprite:
     Used for explosion-effects and menu graphics
     @params fname: TGA texture filename
     '''
-    def __init__(self,fname):
+    def __init__(self,scale):
         #Image, position, drawing (tricky)
+        self.trans = 0.0
+        self.ypos = 0.0
+        self.xpos = 0.0
+        self.rotate = random.random()*2*3.14159265389
+        self.scale = random.random()*scale
+        self.list = 0
+        self.createDisplayList()
+        
+    def newTexture(self,fname):
         self.image = TgaTexture(fname)
-        self.image.newGLTexture() 
-    
+        self.image.newGLTexture()
+        
+    def setTexture(self,image):
+        self.image = image
+        
     def draw(self):
         glBindTexture(GL_TEXTURE_2D,self.image.name)
-        #rotate
-        polygon()
+        glPushMatrix()
+        glTranslatef(self.xpos,self.ypos,-self.trans) 
+        glRotatef(self.rotate,1,0,0)
+        glScalef(self.scale,self.scale,self.scale)
+
+        glCallList(self.list)
+        glPopMatrix()
         
-    def polygon():
+    def createDisplayList(self):
+        self.list = glGenLists(1)
+        glNewList(self.list,GL_COMPILE)
         glBegin(GL_POLYGON)
         glMultiTexCoord2f(GL_TEXTURE1,1 ,1)
         glVertex3i(0,10,10)
@@ -43,6 +63,7 @@ class Sprite:
         glMultiTexCoord2f(GL_TEXTURE1, 0, 1)
         glVertex3i(0,-10,10)
         glEnd()
+        glEndList()
 
 if __name__ == '__main__':
     pass
