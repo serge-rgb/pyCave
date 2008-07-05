@@ -16,7 +16,7 @@
 from OpenGL.GL import *
 from tga import *
 
-class Sprite():
+class Sprite:
     '''
     Two dimensional entity displayed as an image.
     Used for explosion-effects and menu graphics
@@ -25,5 +25,21 @@ class Sprite():
     def __init__(self,fname):
         #Image, position, drawing (tricky)
         self.image = TgaTexture(fname)
-        image.newGLTexture() 
-        pass
+        self.image.newGLTexture() 
+
+    def draw(self):
+        glBindTexture(GL_TEXTURE_2D,self.image.name)
+        glBegin(GL_POLYGON)
+        glMultiTexCoord2f(GL_TEXTURE1,1 ,1)
+        glVertex3i(0,10,10)
+        glMultiTexCoord2f(GL_TEXTURE1,1,0)
+        glVertex3i(0,10,-10)
+        glMultiTexCoord2f(GL_TEXTURE1,0,0)
+        glVertex3i(0,-10,-10)
+        glMultiTexCoord2f(GL_TEXTURE1, 0, 1)
+        glVertex3i(0,-10,10)
+        glEnd()
+
+if __name__ == '__main__':
+    pass
+

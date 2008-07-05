@@ -17,7 +17,8 @@
 from game import *
 from lighting import *
 from OpenGL.GL import *
-
+from sprite import *
+import camera
 
 class Renderer(Game):
     '''
@@ -28,6 +29,14 @@ class Renderer(Game):
         '''
         '''
         Game.__init__(self)
+
+        #=====
+        #Test sprite
+
+        self.spr = Sprite('media/smoke.tga')
+        #===
+
+
         #LIGHTING ===========
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
@@ -62,6 +71,7 @@ class Renderer(Game):
         glEnable(GL_DEPTH_TEST)
         tone = 0.1
         glClearColor(tone, tone, tone, 0.0)
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
         #glClearColor(1.0, 1.0, 1.0, 0.0)
         
         
@@ -74,23 +84,26 @@ class Renderer(Game):
         
         glActiveTexture(GL_TEXTURE0)
         #Solid stuff
-        
-        7# TEXTURED STUFF==================
-        glActiveTexture(GL_TEXTURE1)
-        glEnable(GL_TEXTURE_2D)
-        self.ship.draw()
-        glDisable(GL_TEXTURE_2D)
-        glActiveTexture(GL_TEXTURE0)
-        #=================================
-        
+
         # NON-SHADOW NON-TEXTURED CASTERS
         if not mode == 1:
             self.tunnel.draw()
 
+        # TEXTURED STUFF==================
+        glActiveTexture(GL_TEXTURE1)
+        glEnable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        self.ship.draw()
+        self.spr.draw()
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glActiveTexture(GL_TEXTURE0)
+        #=================================
+        
     def gameCamera(self):
-        gluLookAt(-150,0,0 #-50
-                ,0,0,100
-                ,0,1,0) 
+        gluLookAt(camera.posx,camera.posy,camera.posz #-50
+                ,camera.lookx,camera.looky,camera.lookz
+                ,camera.normalx,camera.normaly,camera.normalz) 
 
     def renderFromEye(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
