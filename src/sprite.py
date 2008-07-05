@@ -26,9 +26,13 @@ class Sprite:
         #Image, position, drawing (tricky)
         self.image = TgaTexture(fname)
         self.image.newGLTexture() 
-
+    
     def draw(self):
         glBindTexture(GL_TEXTURE_2D,self.image.name)
+        #rotate
+        polygon()
+        
+    def polygon():
         glBegin(GL_POLYGON)
         glMultiTexCoord2f(GL_TEXTURE1,1 ,1)
         glVertex3i(0,10,10)
