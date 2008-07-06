@@ -74,61 +74,65 @@ class Model:
         glPopMatrix()
                 
 class OBJMesh:
-	def __init__(self,fname):
-		self.vertArray = []
-		self.normArray = []
-		self.textArray = []
-		self.faces = []
-		#For shadow volume calculation
-		self.edges = [] 
-		self.numFaces = 0
-		self.openObjFile(fname)
-		
-	def openObjFile(self,fname):
-		print 'MESH: Reading OBJ file...'
-		f = open(fname,'rt')
-		lines = f.readlines()
-		f.close()
-		words = []
-		i = 0
-		for line in lines:
-			words = line.split()
-			i += 1
-			if len(words) < 1:
-				continue
-			if words[0] == 'v':
-				x = float(words[1])
-				y = float(words[2])
-				z = float(words[3])
-				self.vertArray.append([x,y,z])
-			if words[0] == 'vt':
-				u = float(words[1])
-				v = float(words[2])
-				self.textArray.append([u,v])
-			if words[0] == 'vn':
-				x = float(words[1])
-				y = float(words[2])
-				z = float(words[3])
-				self.normArray.append([x,y,z])
-			if words[0] == 'f':
-				verts = []
-				texcoords = []
-				norms = []
-				for w in words[1:]:
-					ind = w.split('/')
-					v = int(ind[0])
-					if(ind[1] != ''):
-						t = int(ind[1])
-					else:
-						t = 1
-					n = int(ind[2])
-					verts.append(v)
-					texcoords.append(t)
-					norms.append(n)	
-				self.faces.append( [verts,texcoords,norms] )
-				self.numFaces +=1
-		print 'done.'
-		print 'MESH: Loaded', len(self.vertArray), 'vertices,',len(self.textArray), 'texture coordinates and',len(self.normArray),'normals.'
-		print 'Mesh has' , self.numFaces , 'faces.'
-		
+    '''
+    Reads .obj files containing vertex, texture coordinate and normal
+    information. A non-compliant model will give ugly, uncatched
+    exceptions.
+    '''
+    def __init__(self,fname):
+        self.vertArray = []
+        self.normArray = []
+        self.textArray = []
+        self.faces = []
+        #For shadow volume calculation
+        self.edges = [] 
+        self.numFaces = 0
+        self.openObjFile(fname)
+
+    def openObjFile(self,fname):
+        print 'MESH: Reading OBJ file...'
+        f = open(fname,'rt')
+        lines = f.readlines()
+        f.close()
+        words = []
+        i = 0
+        for line in lines:
+            words = line.split()
+            i += 1
+            if len(words) < 1:
+                continue
+            if words[0] == 'v':
+                x = float(words[1])
+                y = float(words[2])
+                z = float(words[3])
+                self.vertArray.append([x,y,z]) 
+            if words[0] == 'vt':
+                u = float(words[1])
+                v = float(words[2])
+                self.textArray.append([u,v])
+            if words[0] == 'vn':
+                x = float(words[1])
+                y = float(words[2])
+                z = float(words[3])
+                self.normArray.append([x,y,z])
+            if words[0] == 'f':
+                verts = []
+                texcoords = []
+                norms = []
+                for w in words[1:]:
+                    ind = w.split('/')
+                    v = int(ind[0])
+                    if(ind[1] != ''):
+                        t = int(ind[1])
+                    else:
+                        t = 1
+                    n = int(ind[2])
+                    verts.append(v)
+                    texcoords.append(t)
+                    norms.append(n)	
+                    self.faces.append( [verts,texcoords,norms] )
+                    self.numFaces +=1
+        print 'done.'
+        print 'MESH: Loaded', len(self.vertArray), 'vertices,',len(self.textArray), 'texture coordinates and',len(self.normArray),'normals.'
+        print 'Mesh has' , self.numFaces , 'faces.'
 		

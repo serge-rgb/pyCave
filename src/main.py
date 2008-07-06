@@ -15,19 +15,24 @@
 
 import sys
 import os
+import time
+
 #TODO: Only if in windows:
 sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
 sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8-py2.5.egg"))
 
 from renderer import *
 
+#if profiling:
+ #   cProfile.runctx('self.rend = Renderer()', globals(), locals(), 'startup')
+#else:
+rend = Renderer()
 
-class Main:
-    def __init__(self):
-        if profiling:
-            cProfile.runctx('self.re = Renderer()', globals(), locals(), 'startup')
-        else:
-            self.re = Renderer()
-        self.re.mainLoop()
-        
-app = Main()
+def reboot():
+    '''
+    This function is called when a game ends.
+    '''
+    print 'Finished successfully.'
+
+rend.mainLoop()
+    

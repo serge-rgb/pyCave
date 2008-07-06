@@ -16,7 +16,7 @@
 
 from model import *
 from sprite import *
-from random import random
+
 
 fname = 'media/smoke.tga' #smoke texture
 
@@ -24,7 +24,7 @@ smokeScale = 0.6
 transInterval = 0.1
 scaleInterval = 0.003
 rotateInterval = 0.25
-scaleLimit = 5
+scaleLimit = 2
 
 class Ship(Model):
     '''
@@ -87,7 +87,7 @@ class Ship(Model):
         spr = Sprite(smokeScale)
         spr.setTexture(self.image)
         spr.ypos = self.pos[1]
-        spr.trans = 0.0
+        spr.trans = 5 
         self.smoke.insert(0,spr)
         
     def smokeIdle(self):

@@ -10,12 +10,11 @@ Make a decent score system
 Hi-scores
 
 Effects:
-Sprite system
+***Sprite system
 Write tunnel shadow volumes
 ?Write shader for non-black shadows
-Separate display list for obstacles.
-
-
+***Separate display list for obstacles.
+ 
 UI:
 Menu
 Hi-scores display

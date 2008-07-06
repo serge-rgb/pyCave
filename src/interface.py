@@ -21,11 +21,11 @@ import cProfile
 
 class Window:
     def __init__(self): 
-        self.w = 800
-        self.h = 500
+        self.w = 1024
+        self.h = 450 
         self.aspect = float(self.w) / float(self.h)
         self.pos = (350,100)
-        self.title = "Cave Game"
+        self.title = "pyCave"
     
     def recalcAspect(self):
         self.aspect = float(self.w) / float(self.h)
@@ -50,7 +50,11 @@ class Interface:
         glutIgnoreKeyRepeat(1)
         glutIdleFunc(self.idle)
        # glutPassiveMotionFunc(self.passiveMotion)
+
     def display(self):
+        '''
+        This will be inherited and used by the game and renderer.
+        '''
         pass
     
     def reshape(self,w,h):
@@ -78,4 +82,6 @@ class Interface:
         glutMainLoop()
 
     def clean(self):
-        sys.exit()
+        glutLeaveMainLoop()
+        import main
+        main.reboot()

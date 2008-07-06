@@ -42,14 +42,7 @@ class Game(Interface):
         #======================
         #TUNNEL
         self.tunnel = Tunnel()
-
-        for i in xrange(370):  
-            self.tunnel.newRing()
-        len = self.tunnel.rings[369].pos[2]
-        a = (len * 0.02) / (2*3.141526535897)
- 
-        self.tunnel.createList()
-#        exit()
+        self.fillTunnel()
         #=======================
         
         #Ascii keymap
@@ -57,7 +50,15 @@ class Game(Interface):
         for i in xrange(0,256):
             self.keyMap.append(0)
         self.time = time.time()
-    
+
+    def fillTunnel(self):
+        for i in xrange(370):  
+            self.tunnel.newRing()
+        len = self.tunnel.rings[369].pos[2]
+        a = (len * 0.02) / (2*3.141526535897)
+        self.tunnel.createList()
+        self.tunnel.createObstacleList()
+        
     def keyboard(self,key,x,y):
         Interface.keyboard(self, key, x, y)
         self.keyMap[ord(key)] = 1
@@ -77,7 +78,6 @@ class Game(Interface):
         crashed = collision.checkTunnel(self.ship,self.tunnel)
         if crashed:
             self.end()
-#            time.sleep(0.01)
 
         self.ship.idle(diff)
         self.tunnel.move(diff)
@@ -98,6 +98,7 @@ class Game(Interface):
         print "Average frametime: ", self.cumTime / self.loops
         print 1/(self.cumTime / self.loops)
         self.ship.clean()
+        self.tunnel.clean()
         Interface.clean(self)
         
 if __name__ == '__main__':

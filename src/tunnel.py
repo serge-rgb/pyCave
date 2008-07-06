@@ -36,7 +36,8 @@ class Obstacle:
         glPushMatrix()
         glTranslatef(0,self.height,self.parent.pos[2] - self.z/2)
         glScalef(self.x,self.y,self.z)
-        glutWireCube(1)
+        #glutWireCube(1)
+        glutSolidCube(1)
         glPopMatrix()
 
 class Ring:
@@ -73,7 +74,7 @@ class Tunnel:
         self.scale = 2.0
         self.sineScale = 0.04
         self.sineOffset = 30
-
+        self.currRing = 0
         
         #Position of new ring
         self.pos = (0,0,0)
@@ -85,6 +86,8 @@ class Tunnel:
         self.dz = 20
         #Display list
         self.list = 0
+        #Obstacle dList
+        self.objlist=0
         #Translation in Z
         self.trans = -20
         
@@ -101,7 +104,6 @@ class Tunnel:
         self.pos = ( 0, off , self.pos[2] + self.dz)
         a = (self.pos[2] * self.sineScale) % (2*math.pi)
         b = math.sin(a)
-#        print b
         self.pos = (self.pos[0],self.pos[1] + b*self.sineOffset ,self.pos[2] )
         ring = Ring(rad,self.pos)
         prevIndex = len(self.rings) -1
@@ -119,8 +121,16 @@ class Tunnel:
         
         if len(self.rings) % 7 == 0 and len(self.rings)!= 0:
             ring.addObstacle()
+        try:    
+            del self.rings[self.currRing].verts
+            del self.rings[self.currRing]
+        except:
+            #No problem if it was empty
+            pass
+        self.rings.insert(self.currRing,ring)
+        self.currRing+=1
+#        self.rings.append(ring)
 
-        self.rings.append(ring)
 
     def draw(self):
         glEnable(GL_NORMALIZE) #TODO: This is slow, fix...
@@ -129,11 +139,17 @@ class Tunnel:
         glCallList(self.list)
         glPopMatrix()
         glDisable(GL_NORMALIZE)
+
+    def drawObstacles(self):
+        glPushMatrix()
+        glTranslatef(0,0,self.trans)
+        glCallList(self.objlist)
+        glPopMatrix() 
     
     def createList(self):
     	'''
-    	Just one display list for a tunnel with ~4000 triangles
-    	Make it more efficient?
+    	Just one display list for a tunnel with ~4000 triangles. Make
+    	it more efficient?
     	'''
         print 'TUNNEL: Creating display list...'
         self.list = glGenLists(1)
@@ -160,7 +176,6 @@ class Tunnel:
                 #Cross product normal
                 #All quads in the Tunnel are coplanar
                 n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
-                        
                 glNormal3fv(n)
                 glVertex3fv(x)
                 glVertex3fv(y)
@@ -168,12 +183,31 @@ class Tunnel:
                 glVertex3fv(w)
         glEnd()
 
-        for ring in self.rings:
-            if hasattr(ring,'obstacle'):
-                ring.obstacle.draw()
-
         glEndList()
         print 'Done.'
 
+    def createObstacleList(self):
+        self.objlist = glGenLists(1)
+        glNewList(self.objlist,GL_COMPILE)
+
+        for ring in self.rings:
+            if hasattr(ring,'obstacle'):
+                ring.obstacle.draw()
+        glEndList()
+
+    def clean(self):
+        glDeleteLists(1,self.list)
+        glDeleteLists(1,self.objlist)
+        
+    def clear(self):
+        '''
+        Delete all data in tunnel. (For usage when the game finishes
+        and a new tunnel needs to be generated)
+        '''
+#        for ring in self.rings:
+ #           del ring.verts[:]
+  #      del self.rings[:]
+        self.__init__()
+        
 if __name__=='__main__':
     from main import *

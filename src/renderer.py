@@ -78,7 +78,7 @@ class Renderer(Game):
         
         glActiveTexture(GL_TEXTURE0)
         #Solid stuff
-
+        self.tunnel.drawObstacles()
         # NON-SHADOW-CASTERS NON-TEXTURED 
         if not mode == 1:
             self.tunnel.draw()
