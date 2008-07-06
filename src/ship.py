@@ -21,9 +21,9 @@ from sprite import *
 fname = 'media/smoke.tga' #smoke texture
 
 smokeScale = 0.6
-transInterval = 0.1
-scaleInterval = 0.003
-rotateInterval = 0.25
+transInterval = 100
+scaleInterval = 2
+rotateInterval = (2*3.14159)*3
 scaleLimit = 2
 
 class Ship(Model):
@@ -52,7 +52,7 @@ class Ship(Model):
         '''
         Move, self-rotate to look alive.
         '''
-        self.smokeIdle() 
+        self.smokeIdle(diff) 
         self.fall(diff)
     
     def draw(self):
@@ -90,15 +90,14 @@ class Ship(Model):
         spr.trans = 5 
         self.smoke.insert(0,spr)
         
-    def smokeIdle(self):
+    def smokeIdle(self,diff):
         if self.smoke[0].trans >= 10:
             self.addSmoke()
         for spr in self.smoke:
-            spr.trans += transInterval
-            spr.xpos -= transInterval
-            spr.scale += scaleInterval
-        
-            spr.rotate += rotateInterval
+            spr.trans += transInterval*diff
+            spr.xpos -= transInterval*diff
+            spr.scale += scaleInterval*diff
+            spr.rotate += rotateInterval*diff
             if spr.scale >= scaleLimit:
                 self.smoke.remove(spr)
                 if len(self.smoke) == 0:
