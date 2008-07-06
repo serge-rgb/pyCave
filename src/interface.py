@@ -21,8 +21,8 @@ import cProfile
 
 class Window:
     def __init__(self): 
-        self.w = 1024
-        self.h = 450 
+        self.w = 1920
+        self.h = 840  
         self.aspect = float(self.w) / float(self.h)
         self.pos = (350,100)
         self.title = "pyCave"

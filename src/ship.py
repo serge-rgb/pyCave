@@ -23,7 +23,7 @@ fname = 'media/smoke.tga' #smoke texture
 smokeScale = 0.6
 transInterval = 55
 scaleInterval = 1.2
-rotateInterval = -180
+rotateInterval = -180 
 scaleLimit = 2
 
 class Ship(Model):
@@ -91,7 +91,7 @@ class Ship(Model):
         self.smoke.insert(0,spr)
         
     def smokeIdle(self,diff):
-        if self.smoke[0].trans >= 10:
+        if self.smoke[0].trans >= 8:
             self.addSmoke()
         for spr in self.smoke:
             spr.trans += transInterval*diff
