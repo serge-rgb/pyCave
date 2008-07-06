@@ -28,7 +28,7 @@ class Sprite:
         self.trans = 0.0
         self.ypos = 0.0
         self.xpos = 0.0
-        self.rotate = random.random()*2*3.14159265389
+        self.rotate = random.random()*360
         self.scale = random.random()*scale
         self.list = 0
         self.createDisplayList()

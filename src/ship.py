@@ -21,9 +21,9 @@ from sprite import *
 fname = 'media/smoke.tga' #smoke texture
 
 smokeScale = 0.6
-transInterval = 100
-scaleInterval = 2
-rotateInterval = (2*3.14159)*3
+transInterval = 55
+scaleInterval = 1.2
+rotateInterval = -180
 scaleLimit = 2
 
 class Ship(Model):
