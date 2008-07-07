@@ -40,6 +40,7 @@ class Renderer(Game):
         if self.enable_shadows and self.light.shadowMap.disabled:
             print "WARNING: Could not find Depth Texture extensions. Disabling shadows" 
             self.enable_shadows = False
+            glDisable(GL_LIGHTING)
             
         self.light.look = (0, 0, 50)
         self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30), 
