@@ -16,22 +16,25 @@
 
 from model import *
 from sprite import *
+import math
 
 
 fname = 'media/smoke.tga' #smoke texture
 
+#====Smoke parameters
 smokeScale = 0.6
 transInterval = 55
-scaleInterval = 1.2
+transIntervalX = 0.8
+scaleInterval = 1.1
 rotateInterval = -180 
-scaleLimit = 2
+scaleLimit = 2.5
 
 class Ship(Model):
     '''
     Extends Model class to define the ship.
     '''
     def __init__(self,game):
-        Model.__init__(self,'media/Hmodel.obj','media/model.tga')
+        Model.__init__(self,'media/ship.obj','media/ship.tga')
         self.createDisplayList()
         self.game = game
         self.smoke = [] #List of smoke sprites.
@@ -44,17 +47,40 @@ class Ship(Model):
         #Standard acceleration and velocity.
         self.accel = 100  # units / time^2
         self.vel = 50  # units / time
-
         self.pos = (0,10,0)
+        self.oldPos = (10,0)
+        #===z Rotation
+        self.zSinInterval = 1
+        self.zSin = 0
 
     
     def idle(self,diff):
         '''
         Move, self-rotate to look alive.
         '''
+        self.oldYpos = self.pos[1]
         self.smokeIdle(diff) 
         self.fall(diff)
-    
+        self.thrustRotation()
+        self.zRotation(diff)
+
+    def thrustRotation(self):
+        y = self.pos[1]
+        z = -self.game.tunnel.trans
+        dot = z - self.oldPos[1]
+        norm = math.sqrt( (y-self.oldPos[0])**2 +  dot**2 ) 
+        cosang = float(dot)/norm
+        ang = (math.acos(cosang)*180)/3.14159265
+        if(y>self.oldPos[0]):
+            ang = -ang
+        self.rotate = (ang,self.rotate[1],self.rotate[2])
+        self.oldPos = (y,z)
+        
+    def zRotation(self,diff):
+        self.zSin += self.zSinInterval*diff
+        a = math.sin(self.zSin)*45
+        self.rotate = (self.rotate[0],self.rotate[1],a)
+        
     def draw(self):
         Model.draw(self)
         
@@ -64,7 +90,7 @@ class Ship(Model):
         
         deltavel = self.accel * deltatime
         deltadist = self.vel * deltatime
-        
+
         self.pos = (self.pos[0], 
                     self.pos[1] + deltadist,
                     self.pos[2])
@@ -95,7 +121,7 @@ class Ship(Model):
             self.addSmoke()
         for spr in self.smoke:
             spr.trans += transInterval*diff
-            spr.xpos -= transInterval*diff
+            spr.xpos -= transIntervalX*diff
             spr.scale += scaleInterval*diff
             spr.rotate += rotateInterval*diff
             if spr.scale >= scaleLimit:

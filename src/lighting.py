@@ -20,6 +20,7 @@ from OpenGL.GLU import *
 import numpy
 #import c_module
 
+
 class Light:
     '''
     example: light(engine,(1,1,1,1) ,(10,0,1) ,GL_LIGHT0, True)
@@ -51,8 +52,8 @@ class Light:
 
 #less typing..
 t2d = GL_TEXTURE_2D
-near = 30
-far = 550
+near = 10
+far = 500
 class ShadowMap:
     def __init__(self,engine,light):
         self.fov = 60
@@ -95,7 +96,7 @@ class ShadowMap:
 
     def invertCompareFunc(self):
         '''
-        We don't want the shadows to be completely blank. 
+        We dont want the shadows to be completely blank. 
         '''
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_GREATER)
 

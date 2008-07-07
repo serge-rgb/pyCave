@@ -20,6 +20,7 @@ class Model:
     def __init__(self,fname,texFile):
         self.mesh = OBJMesh(fname)
         self.pos = (0,0,0)
+        self.rotate = (0,0,0)
         self.list = 0
         #self.createDisplayList()
 
@@ -68,7 +69,10 @@ class Model:
         '''
         glBindTexture(GL_TEXTURE_2D,self.texture.name)
         glPushMatrix()
+
         glTranslatef(self.pos[0],self.pos[1],self.pos[2])
+        glRotatef(self.rotate[0],1,0,0)
+        glRotatef(self.rotate[2],0,0,1)  
         glCallList(self.list)
         #glutSolidSphere(1,10,10)
         glPopMatrix()
