@@ -16,6 +16,7 @@
 
 from OpenGL.GL import *
 from OpenGL.GL.ARB.depth_texture import *
+from OpenGL.GL.EXT.framebuffer_object import *
 from OpenGL.GLU import *
 import numpy
 #import c_module
@@ -32,6 +33,7 @@ class Light:
         self.color = color
         self.num = num
         self.casts_shadows = casts_shadows
+        
         glLightfv(self.num, GL_POSITION, pos)
         glLightfv(self.num, GL_DIFFUSE, color)
         glLightfv(self.num, GL_SPECULAR, color)
@@ -50,8 +52,6 @@ class Light:
     def off(self):
         glDisable(self.num)
 
-#less typing..
-t2d = GL_TEXTURE_2D
 near = 10
 far = 500
 class ShadowMap:
@@ -62,13 +62,21 @@ class ShadowMap:
         self.name = glGenTextures(1)
         self.light = light
         self.disabled = False
+        
         hasExt = glInitDepthTextureARB()
+        
+#        if not hasExt:
+ #           self.disabled = True
+
+        hasExt = glInitFramebufferObjectEXT()
+
         if not hasExt:
+            print 'No framebuffer object Extension!!!'
             self.disabled = True
             return
-
-        glBindTexture(t2d,self.name)
-        glCopyTexImage2D(t2d,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),GLsizei(self.size),GLsizei(self.size),GLint(0))
+        
+        glBindTexture(GL_TEXTURE_2D,self.name)
+        glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),GLsizei(self.size),GLsizei(self.size),GLint(0))
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE)
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) #CLAMP_TO_EDGE
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
@@ -102,8 +110,8 @@ class ShadowMap:
 
     def resize(self):
         self.size = self.engine.win.h
-        glBindTexture(t2d,self.name)
-        glCopyTexImage2D(t2d,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),self.size,self.size,GLint(0))
+        glBindTexture(GL_TEXTURE_2D,self.name)
+        glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),self.size,self.size,GLint(0))
         
     def genMap(self):
         glMatrixMode(GL_PROJECTION)
@@ -123,9 +131,9 @@ class ShadowMap:
         self.engine.drawGeometry(1)
         
         glMatrixMode(GL_PROJECTION)
-        glBindTexture(t2d,self.name)
-        glCopyTexSubImage2D(t2d,0,0,0,0,0,self.size,self.size)
-        glEnable(t2d)
+        glBindTexture(GL_TEXTURE_2D,self.name)
+        glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,self.size,self.size)
+        glEnable(GL_TEXTURE_2D)
         
     def genMatrix(self):
         glMatrixMode(GL_PROJECTION)
