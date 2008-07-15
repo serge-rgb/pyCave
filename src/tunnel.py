@@ -133,12 +133,16 @@ class Tunnel:
 
 
     def draw(self):
+        glMaterialfv(GL_FRONT,GL_DIFFUSE,(.9,.98,1,1))
+        glMaterialfv(GL_BACK,GL_DIFFUSE,(0,0,0,1))
+        
         glEnable(GL_NORMALIZE) #TODO: This is slow, fix...
         glPushMatrix()
         glTranslatef(0,0,self.trans)
         glCallList(self.list)
         glPopMatrix()
         glDisable(GL_NORMALIZE)
+        glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,(1,1,1,1))
 
     def drawObstacles(self):
         glPushMatrix()

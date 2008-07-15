@@ -31,17 +31,16 @@ class Renderer(Game):
         Game.__init__(self)
         
 
-        #LIGHTING ===========
+        #LIGHTING =========== 
         self.shadowDebug = False#True
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
         #(-60, 70, -210), 
-        self.light = Light(self, (1, 1, 1, 1), (-100, 0,-120), 
+        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120), 
                            GL_LIGHT0, self.enable_shadows)
         if self.enable_shadows and self.light.shadowMap.disabled:
-            print "WARNING: Could not find Depth Texture extensions. Disabling shadows" 
+            print "WARNING: Disabling shadows" 
             self.enable_shadows = False
-            glDisable(GL_LIGHTING)
             
         self.light.look = (0, 0, 50)
         self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30), 
@@ -64,12 +63,12 @@ class Renderer(Game):
         
         #FOG ================
         glEnable(GL_FOG)
-        fogColor = (0.5, 0.5, 0.5)
-        fogMode = GL_EXP
+        fogColor = (0.3, .3, 0.3)
+        fogMode = GL_EXP2
         glFogi(GL_FOG_MODE, fogMode)
         glFogfv(GL_FOG_COLOR, fogColor)
-        glFogf(GL_FOG_DENSITY, 0.0005)
-        glFogf(GL_FOG_START, 250.0)
+        glFogf(GL_FOG_DENSITY, 0.004)
+        glFogf(GL_FOG_START, 600.0)
         glFogf(GL_FOG_END, 1000.0)
         #=========================
         

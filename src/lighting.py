@@ -54,13 +54,13 @@ class Light:
     def off(self):
         glDisable(self.num)
 
-near = 150
+near = 100
 far = 350
 class ShadowMap:
     def __init__(self,engine,light):
         self.fov = 60
         self.engine = engine
-        self.size = 1000
+        self.size = 1024
         self.name = glGenTextures(1)
         self.dtexture = glGenTextures(1)
         self.light = light
@@ -156,7 +156,7 @@ class ShadowMap:
         self.lookAt()
         glClear(GL_DEPTH_BUFFER_BIT)
         glEnable(GL_POLYGON_OFFSET_FILL)
-        glPolygonOffset(0,1)
+        glPolygonOffset(-10,1)
         self.engine.drawGeometry(1)
         glDisable(GL_POLYGON_OFFSET_FILL)
         glMatrixMode(GL_PROJECTION)
