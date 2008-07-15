@@ -29,13 +29,14 @@ class Renderer(Game):
         '''
         '''
         Game.__init__(self)
-
+        
 
         #LIGHTING ===========
+        self.shadowDebug = False#True
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
         #(-60, 70, -210), 
-        self.light = Light(self, (1, 1, 1, 1), (-20, 0, -120), 
+        self.light = Light(self, (1, 1, 1, 1), (-100, 0,-120), 
                            GL_LIGHT0, self.enable_shadows)
         if self.enable_shadows and self.light.shadowMap.disabled:
             print "WARNING: Could not find Depth Texture extensions. Disabling shadows" 
@@ -51,15 +52,23 @@ class Renderer(Game):
         self.light.on()
         self.backLight.on()
 
+        if self.shadowDebug:
+            self.perspTransf = self.light.shadowMap.perspTransf
+            self.lookAt = self.light.shadowMap.lookAt
+        else:
+            self.perspTransf = lambda : gluPerspective(60,self.win.aspect,0.1,1500)
+            self.lookAt = self.gameCamera
+        
+
         #=========
         
         #FOG ================
         glEnable(GL_FOG)
-        fogColor = (0.0, 0.0, 0.0)
-        fogMode = GL_EXP2
+        fogColor = (0.5, 0.5, 0.5)
+        fogMode = GL_EXP
         glFogi(GL_FOG_MODE, fogMode)
         glFogfv(GL_FOG_COLOR, fogColor)
-        glFogf(GL_FOG_DENSITY, 0.0042)
+        glFogf(GL_FOG_DENSITY, 0.0005)
         glFogf(GL_FOG_START, 250.0)
         glFogf(GL_FOG_END, 1000.0)
         #=========================
@@ -119,15 +128,15 @@ class Renderer(Game):
                 ,camera.normal[0],camera.normal[1],camera.normal[2]) 
 
     def renderFromEye(self):
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
         glMatrixMode(GL_PROJECTION)
         glViewport(0,0,self.win.w,self.win.h)
         glLoadIdentity()
-        gluPerspective(60,self.win.aspect,0.1,1500)
+        
+        self.perspTransf()
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        
-        self.gameCamera()
+        self.lookAt()
         self.drawGeometry(0)
 
     def reshape(self,w,h):
@@ -143,11 +152,12 @@ class Renderer(Game):
                     
     def render(self):    
         if self.enable_shadows:
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
-            glBindTexture(t2d,self.light.shadowMap.name)
+        #    glClear(GL_COLOR_BUFFER_BIT |  GL_DEPTH_BUFFER_BIT )
+            glBindTexture(GL_TEXTURE_2D,self.light.shadowMap.dtexture)
             self.light.shadowMap.genMap()
             #TODO: Lots of rendering time is spent here. Optimize
-            self.light.shadowMap.genMatrix()        
+            self.light.shadowMap.genMatrix()
+            
         self.renderFromEye()
         glutSwapBuffers()
     

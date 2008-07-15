@@ -16,8 +16,10 @@
 
 from OpenGL.GL import *
 from OpenGL.GL.ARB.depth_texture import *
+from OpenGL.GL.ARB.shadow_ambient import *
 from OpenGL.GL.EXT.framebuffer_object import *
 from OpenGL.GLU import *
+from OpenGL.GLUT import *
 import numpy
 #import c_module
 
@@ -52,45 +54,61 @@ class Light:
     def off(self):
         glDisable(self.num)
 
-near = 10
-far = 500
+near = 150
+far = 350
 class ShadowMap:
     def __init__(self,engine,light):
         self.fov = 60
         self.engine = engine
-        self.size = engine.win.h
+        self.size = 1000
         self.name = glGenTextures(1)
+        self.dtexture = glGenTextures(1)
         self.light = light
         self.disabled = False
-        
-        hasExt = glInitDepthTextureARB()
-        
-#        if not hasExt:
- #           self.disabled = True
+        self.fbo = 0
 
-        hasExt = glInitFramebufferObjectEXT()
+        hasDepthTex = glInitDepthTextureARB()
+        hasFbo = glInitFramebufferObjectEXT()
+        hasAmbient = glInitShadowAmbientARB()
 
-        if not hasExt:
+        if not hasFbo or not hasDepthTex:
             print 'No framebuffer object Extension!!!'
             self.disabled = True
             return
-        
-        glBindTexture(GL_TEXTURE_2D,self.name)
-        glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),GLsizei(self.size),GLsizei(self.size),GLint(0))
+
+        glBindTexture(GL_TEXTURE_2D,self.dtexture)
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT , self.size, self.size, 0,GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, None)
+
+        texfilter = GL_LINEAR
+#        texfilter = GL_NEAREST
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) #CLAMP_TO_EDGE
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE) 
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texfilter)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texfilter)
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_LEQUAL)
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_COMPARE_R_TO_TEXTURE)
-        #Do this in a C module?..
-        #c_module.setTexParamFailValue(0.5)
-        #glTexParameter(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FAIL_VALUE,0.5)
-        #glTexEnvf(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,0.5)
-        #glTexParameteri(GL_TEXTURE_2D,GL_DEPTH_TEXTURE_MODE,GL_LUMINANCE)
 
+        self.fbo = glGenFramebuffersEXT(1)
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,self.fbo)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,#GL_COLOR_ATTACHMENT0_EXT,
+                                  GL_TEXTURE_2D,self.dtexture,0)
+        glDrawBuffer(GL_NONE);          
+
+        enum = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
+
+        if enum == GL_FRAMEBUFFER_COMPLETE_EXT:
+            pass
+        if enum == GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+            print 'Dimension error'
+        if enum == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+            print 'Attachment error'
+        if enum == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+            print 'draw error'
         
-        print 'SHADOW MAP: Created Shadow Map with name', self.name
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
+          
+        print 'SHADOW MAP: Created Shadow Map with name', self.dtexture
         
     def transposeMatrix(self,mat):
         res = numpy.array([[0,0,0,0],
@@ -110,37 +128,47 @@ class ShadowMap:
 
     def resize(self):
         self.size = self.engine.win.h
-        glBindTexture(GL_TEXTURE_2D,self.name)
+        glBindTexture(GL_TEXTURE_2D,self.dtexture)
         glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),self.size,self.size,GLint(0))
+
+    def perspTransf(self):
+        gluPerspective(self.fov,1,near,far)
+
         
-    def genMap(self):
+    def lookAt(self):
+         gluLookAt(self.pos[0],self.pos[1],self.pos[2],
+                  self.look[0],self.look[1],self.look[2],
+                  0,1,0)
+        
+    def genMap(self):    
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,self.fbo)
+
+              
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
-        gluPerspective(self.fov,1,near,far)
+        self.perspTransf()
         glViewport(0,0,self.size,self.size)
         
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        glPolygonOffset(1000,1000)
         self.pos = self.light.pos
         self.look = self.light.look
-        gluLookAt(self.pos[0],self.pos[1],self.pos[2],
-                  self.look[0],self.look[1],self.look[2],
-                  0,1,0)
-        
+        self.lookAt()
+        glClear(GL_DEPTH_BUFFER_BIT)
+        glEnable(GL_POLYGON_OFFSET_FILL)
+        glPolygonOffset(0,1)
         self.engine.drawGeometry(1)
-        
+        glDisable(GL_POLYGON_OFFSET_FILL)
         glMatrixMode(GL_PROJECTION)
-        glBindTexture(GL_TEXTURE_2D,self.name)
-        glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,0,0,0,self.size,self.size)
         glEnable(GL_TEXTURE_2D)
-        
-    def genMatrix(self):
+        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
+
+    def genMatrix(self):        
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         
         glPushMatrix()
-        gluPerspective(self.fov,1,near,far)
+        self.perspTransf()
         Pmatrix = glGetFloatv(GL_PROJECTION_MATRIX)
         glPopMatrix()
         
@@ -156,9 +184,7 @@ class ShadowMap:
         #Plight
         glMultMatrixf(Pmatrix)
         #L**-1
-        gluLookAt(self.pos[0],self.pos[1],self.pos[2],
-                  self.look[0],self.look[1],self.look[2],
-                  0,1,0)
+        self.lookAt()
         #S(Plight)(l**-1)
         Mmatrix = glGetFloatv(GL_MODELVIEW_MATRIX)
         glPopMatrix()

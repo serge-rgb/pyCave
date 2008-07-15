@@ -22,7 +22,7 @@ import cProfile
 class Window:
     def __init__(self): 
         self.w = 1024
-        self.h = 450 
+        self.h = 540
         self.aspect = float(self.w) / float(self.h)
         self.pos = (350,100)
         self.title = "pyCave"
@@ -37,7 +37,7 @@ class Interface:
     def __init__(self):
         self.win = Window()
         glutInit([])
-        glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL )
+        glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
         glutInitWindowSize (self.win.w,self.win.h)
         glutInitWindowPosition (self.win.pos[0],self.win.pos[1])
         glClearStencil(0x1) 
