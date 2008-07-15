@@ -33,10 +33,11 @@ class Renderer(Game):
 
         #LIGHTING =========== 
         self.shadowDebug = False#True
+         
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
         #(-60, 70, -210), 
-        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120), 
+        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120,1), 
                            GL_LIGHT0, self.enable_shadows)
         if self.enable_shadows and self.light.shadowMap.disabled:
             print "WARNING: Disabling shadows" 

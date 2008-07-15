@@ -39,6 +39,7 @@ class Light:
         glLightfv(self.num, GL_POSITION, pos)
         glLightfv(self.num, GL_DIFFUSE, color)
         glLightfv(self.num, GL_SPECULAR, color)
+#        glLightf (self.num, GL_SPOT_CUTOFF, 40.0)
         
         if self.casts_shadows:
             self.shadowMap = ShadowMap(engine,self)
@@ -54,13 +55,13 @@ class Light:
     def off(self):
         glDisable(self.num)
 
-near = 100
+near = 50
 far = 350
 class ShadowMap:
     def __init__(self,engine,light):
         self.fov = 60
         self.engine = engine
-        self.size = 1024
+        self.size = 512
         self.name = glGenTextures(1)
         self.dtexture = glGenTextures(1)
         self.light = light
@@ -124,6 +125,7 @@ class ShadowMap:
         '''
         We dont want the shadows to be completely blank. 
         '''
+        glReadPixelsi()
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_GREATER)
 
     def resize(self):
@@ -131,7 +133,7 @@ class ShadowMap:
         glBindTexture(GL_TEXTURE_2D,self.dtexture)
         glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),self.size,self.size,GLint(0))
 
-    def perspTransf(self):
+    def perspTransf (self):
         gluPerspective(self.fov,1,near,far)
 
         
@@ -208,3 +210,7 @@ class ShadowMap:
         glEnable(GL_TEXTURE_GEN_T)
         glEnable(GL_TEXTURE_GEN_R)
         glEnable(GL_TEXTURE_GEN_Q)
+
+
+if __name__ == '__main__':
+    from main import *
