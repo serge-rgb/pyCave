@@ -44,9 +44,9 @@ class Renderer(Game):
             self.enable_shadows = False
             
         self.light.look = (0, 0, 50)
-        self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30), 
+        self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30,1), 
                                   GL_LIGHT1, False)
-        self.backLight = Light(self,(0.2,0.2,0.2,1),(-10,-50,-30),
+        self.backLight = Light(self,(0.2,0.2,0.2,1),(-10,-50,-30,1),
                                GL_LIGHT2,False)
         self.ambientLight.on()
         self.light.on()
