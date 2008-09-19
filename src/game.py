@@ -14,93 +14,166 @@
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from interface import *
-from ship import *
-from tunnel import *
-import collision
-import time
+from gameplay import *
+from lighting import *
+from OpenGL.GL import *
+from sprite import *
+import camera
 
-profiling = False
-
-if profiling:
-    import cProfile
-
-class Game(Interface):
+class Game(Gameplay):
     '''
-    @requires: Interface
-    Manages collisions, the ship, the cave, I/O
+    @requires: Gameplay
+    @summary: Gameplay plus lighting and rendering.
     '''
-    def __init__(self):
-        self.cumTime = 0
-        self.loops = 0
-        self.score = 0
-        self.ended = False 
-        Interface.__init__(self)
+    def __init__(self,menu):
+        '''
+        We need a reference to a menu so we can give 
+        GLUT control back to it when we are done.
+        '''
+        Gameplay.__init__(self)
         
-        self.ship = Ship(self) 
-        
-        #======================
-        #TUNNEL
-        self.tunnel = Tunnel()
-        self.fillTunnel()
-        #=======================
-        
-        #Ascii keymap
-        self.keyMap = []
-        for i in xrange(0,256):
-            self.keyMap.append(0)
-        self.time = time.time()
+        self.menu = menu
+        #LIGHTING =========== 
+        self.shadowDebug = False#True
+         
+        glEnable(GL_LIGHTING)
+        self.enable_shadows = True
+        #(-60, 70, -210), 
+        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120,1), 
+                           GL_LIGHT0, self.enable_shadows)
+        if self.enable_shadows and self.light.shadowMap.disabled:
+            print "WARNING: Disabling shadows" 
+            self.enable_shadows = False
+            
+        self.light.look = (0, 0, 50)
+        self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30,1), 
+                                  GL_LIGHT1, False)
+        self.backLight = Light(self,(0.2,0.2,0.2,1),(-10,-50,-30,1),
+                               GL_LIGHT2,False)
+        self.ambientLight.on()
+        self.light.on()
+        self.backLight.on()
 
-    def fillTunnel(self):
-        for i in xrange(370):  
-            self.tunnel.newRing()
-        len = self.tunnel.rings[369].pos[2]
-        a = (len * 0.02) / (2*3.141526535897)
-        self.tunnel.createList()
-        self.tunnel.createObstacleList()
+        if self.shadowDebug:
+            self.perspTransf = self.light.shadowMap.perspTransf
+            self.lookAt = self.light.shadowMap.lookAt
+        else:
+            self.perspTransf = lambda : gluPerspective(60,self.win.aspect,0.1,1500)
+            self.lookAt = self.gameCamera
         
-    def keyboard(self,key,x,y):
-        Interface.keyboard(self, key, x, y)
-        self.keyMap[ord(key)] = 1
+
+        #=========
         
-    def keyboardUp(self,key,x,y):
-        self.keyMap[ord(key)] = 0
+        #FOG ================
+        glEnable(GL_FOG)
+        fogColor = (0.3, .3, 0.3)
+        fogMode = GL_EXP2
+        glFogi(GL_FOG_MODE, fogMode)
+        glFogfv(GL_FOG_COLOR, fogColor)
+        glFogf(GL_FOG_DENSITY, 0.004)
+        glFogf(GL_FOG_START, 600.0)
+        glFogf(GL_FOG_END, 1000.0)
+        #=========================
         
-    def manageInput(self):
-        pass
+        glEnable(GL_DEPTH_TEST)
+        tone = 0.1
+        glClearColor(tone, tone, tone, 0.0)
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
+        #glClearColor(1.0, 1.0, 1.0, 0.0)
+                
+    def drawGeometry(self,mode):
+        '''
+        mode:
+            0 - All
+            1 - Shadow Casters
+        '''
+       
+        if not mode == 1:
+            pass
+            #glCullFace(GL_BACK)
+            glDisable(GL_CULL_FACE)
+        
+        else:
+            glEnable(GL_CULL_FACE)
+            glCullFace(GL_FRONT)
+        #    glEnable(GL_CULL_FACE)
+            
+        
+        #glCullFace(GL_FRONT)
+        glActiveTexture(GL_TEXTURE0)
+        #Solid stuff
+        self.tunnel.drawObstacles()
+        # NON-SHADOW-CASTERS NON-TEXTURED 
+        if not mode == 1:
+            self.tunnel.draw()
+
+        # SOLID TEXTURED Casters==================
+        glActiveTexture(GL_TEXTURE1)
+        glEnable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        self.ship.draw()
+        # Translucent textured stuff===
+        
+        # Translucent textured non-shadow-casters==
+        if not mode ==1 or mode==1:
+            self.ship.drawSmoke()
+
+        glDisable(GL_TEXTURE_2D)
+        glDisable(GL_BLEND)
+        glActiveTexture(GL_TEXTURE0)
+        #=================================
+        
+    def gameCamera(self):
+        gluLookAt(camera.pos[0],camera.pos[1],camera.pos[2] #-50
+                ,camera.lookat[0],camera.lookat[1],camera.lookat[2]
+                ,camera.normal[0],camera.normal[1],camera.normal[2]) 
+
+    def renderFromEye(self):
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT )
+        glMatrixMode(GL_PROJECTION)
+        glViewport(0,0,self.win.w,self.win.h)
+        glLoadIdentity()
+        
+        self.perspTransf()
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        self.lookAt()
+        self.drawGeometry(0)
+
+    def reshape(self,w,h):
+        Gameplay.reshape(self, w, h)
+        if self.enable_shadows:
+            self.light.shadowMap.resize()
+    
+    def display(self):
+        if profiling:
+            cProfile.runctx('for x in xrange(10): self.render();',globals(),locals(),'prof')
+        else:
+            self.render()
+                    
+    def render(self):    
+        if self.enable_shadows:
+        #    glClear(GL_COLOR_BUFFER_BIT |  GL_DEPTH_BUFFER_BIT )
+            glBindTexture(GL_TEXTURE_2D,self.light.shadowMap.dtexture)
+            self.light.shadowMap.genMap()
+            #TODO: Lots of rendering time is spent here. Optimize
+            self.light.shadowMap.genMatrix()
+            
+        self.renderFromEye()
+        glutSwapBuffers()
     
     def idle(self):
-        '''
-        Here is where
-        '''
-        self.manageInput()
-        diff = time.time() - self.time
-        crashed = collision.checkTunnel(self.ship,self.tunnel)
-        if crashed:
-            self.end()
+        Gameplay.idle(self)
+        glutPostRedisplay()
+        if self.ended == True:
+            self.clean() #This will change to something that returns to the menu
 
-        self.ship.idle(diff)
-        self.tunnel.move(diff)
-        
-        self.cumTime += diff
-        self.loops += 1
-        self.score += 0.1 #TODO: change this method.
-        self.time = time.time()
-       # print self.score
-        
-    def end(self):
-        print 'Your score is: ', self.score
-        self.ship.die()
-        self.ended = True
-        print "Game Ended"
-        
     def clean(self):
-        print "Average frametime: ", self.cumTime / self.loops
-        print 1/(self.cumTime / self.loops)
-        self.ship.clean()
-        self.tunnel.clean()
-        Interface.clean(self)
-        
-if __name__ == '__main__':
+        '''
+        '''
+        Gameplay.clean(self)
+        self.menu.getGlutControl()
+
+
+if __name__=='__main__':
     from main import *
-                                                                           

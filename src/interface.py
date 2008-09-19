@@ -20,37 +20,44 @@ from OpenGL.GLU import *
 import cProfile
 
 class Window:
-    def __init__(self): 
+    def __init__(self,title): 
         self.w = 1024
-        self.h = 540#1000
+        self.h = 540
         self.aspect = float(self.w) / float(self.h)
         self.pos = (350,100)
-        self.title = "pyCave"
+        self.title = title
+        self.identifier = -1
     
     def recalcAspect(self):
         self.aspect = float(self.w) / float(self.h)
+
+win = Window("pyCave")
+        
+def initGraphics():
+    glutInit([])
+    glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
+    glutInitWindowSize (win.w,win.h)
+    glutInitWindowPosition (win.pos[0],win.pos[1])
+    glClearStencil(0x1) 
+    glutCreateWindow(win.title)
         
 class Interface:
     '''
     Interface to GLUT for window management.
     '''
     def __init__(self):
-        self.win = Window()
-        glutInit([])
-        glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
-        glutInitWindowSize (self.win.w,self.win.h)
-        glutInitWindowPosition (self.win.pos[0],self.win.pos[1])
-        glClearStencil(0x1) 
-        glutCreateWindow(self.win.title)
-        
+#        self.win = Window()
+        self.win = win        
+        glutIgnoreKeyRepeat(1)
+        self.getGlutControl()
+
+    def getGlutControl(self):
         glutDisplayFunc(self.display)
         glutReshapeFunc(self.reshape)
         glutKeyboardFunc(self.keyboard)
         glutKeyboardUpFunc(self.keyboardUp)
-        glutIgnoreKeyRepeat(1)
         glutIdleFunc(self.idle)
-       # glutPassiveMotionFunc(self.passiveMotion)
-
+        
     def display(self):
         '''
         This will be inherited and used by the game and renderer.
@@ -58,9 +65,9 @@ class Interface:
         pass
     
     def reshape(self,w,h):
-        self.win.w = w
-        self.win.h = h
-        self.win.recalcAspect()
+        win.w = w
+        win.h = h
+        win.recalcAspect()
         glViewport(0,0,w,h)
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -82,6 +89,10 @@ class Interface:
         glutMainLoop()
 
     def clean(self):
-        glutLeaveMainLoop()
-        import main
-        main.reboot()
+        pass
+        #glutLeaveMainLoop()
+        #import main
+        #main.reboot()
+        
+if __name__ == '__main__':
+    from main import *

@@ -21,18 +21,19 @@ import time
 sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
 sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8-py2.5.egg"))
 
-from renderer import *
+import game
+import menu
+import interface
 
 #if profiling:
  #   cProfile.runctx('self.rend = Renderer()', globals(), locals(), 'startup')
 #else:
-rend = Renderer()
-
 def reboot():
     '''
     This function is called when a game ends.
     '''
     print 'Finished successfully.'
 
-rend.mainLoop()
+interface.initGraphics()
+menu = menu.Menu()
     
