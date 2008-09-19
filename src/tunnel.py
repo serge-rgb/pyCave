@@ -88,6 +88,9 @@ class Tunnel:
         self.list = 0
         #Obstacle dList
         self.objlist=0
+        self.reset()
+
+    def reset(self):
         #Translation in Z
         self.trans = -20
         

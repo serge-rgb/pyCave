@@ -73,6 +73,7 @@ class Interface:
         glLoadIdentity()
         
     def keyboard(self,key,x,y):
+        key = key.lower()
         if key == 'q':
             self.clean()
         

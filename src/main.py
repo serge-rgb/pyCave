@@ -28,11 +28,6 @@ import interface
 #if profiling:
  #   cProfile.runctx('self.rend = Renderer()', globals(), locals(), 'startup')
 #else:
-def reboot():
-    '''
-    This function is called when a game ends.
-    '''
-    print 'Finished successfully.'
 
 interface.initGraphics()
 menu = menu.Menu()

@@ -31,25 +31,29 @@ class Gameplay(Interface):
     @summary: Manages collisions, the ship, the cave, I/O
     '''
     def __init__(self):
-        self.cumTime = 0
-        self.loops = 0
-        self.score = 0
-        self.ended = False 
+
         Interface.__init__(self)
         
-        self.ship = Ship(self) 
-        
+        self.ship = Ship(self)
+                
         #======================
         #TUNNEL
         self.tunnel = Tunnel()
         self.fillTunnel()
-        #=======================
+        #=======================        
+        self.start()
+        
+    def start(self):
+        self.cumTime = 0
+        self.loops = 0
+        self.score = 0
+        self.died = False 
+        self.time = time.time()
         
         #Ascii keymap
         self.keyMap = []
         for i in xrange(0,256):
             self.keyMap.append(0)
-        self.time = time.time()
 
     def fillTunnel(self):
         for i in xrange(370):  
@@ -84,22 +88,19 @@ class Gameplay(Interface):
         
         self.cumTime += diff
         self.loops += 1
-        self.score += 0.1 #TODO: change this method.
         self.time = time.time()
        # print self.score
         
     def end(self):
-        print 'Your score is: ', self.score
         self.ship.die()
-        self.ended = True
-        print "Game Ended"
+        self.died = True
         
     def clean(self):
-        print "Average frametime: ", self.cumTime / self.loops
-        print 1/(self.cumTime / self.loops)
-        self.ship.clean()
-        self.tunnel.clean()
-        Interface.clean(self)
+        #print "Average frametime: ", self.cumTime / self.loops
+        #print 1/(self.cumTime / self.loops)
+        self.score = self.cumTime
+        self.ship.reset()
+        self.tunnel.reset()
         
 if __name__ == '__main__':
     from main import *

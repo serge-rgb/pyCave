@@ -59,9 +59,7 @@ class Game(Gameplay):
             self.lookAt = self.light.shadowMap.lookAt
         else:
             self.perspTransf = lambda : gluPerspective(60,self.win.aspect,0.1,1500)
-            self.lookAt = self.gameCamera
-        
-
+            self.lookAt = self.gameCamera        
         #=========
         
         #FOG ================
@@ -76,8 +74,8 @@ class Game(Gameplay):
         #=========================
         
         glEnable(GL_DEPTH_TEST)
-        tone = 0.1
-        glClearColor(tone, tone, tone, 0.0)
+        self.tone = 0.3
+        
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
         #glClearColor(1.0, 1.0, 1.0, 0.0)
                 
@@ -146,6 +144,7 @@ class Game(Gameplay):
             self.light.shadowMap.resize()
     
     def display(self):
+        glClearColor(self.tone, self.tone, self.tone, 0.0)
         if profiling:
             cProfile.runctx('for x in xrange(10): self.render();',globals(),locals(),'prof')
         else:
@@ -165,13 +164,15 @@ class Game(Gameplay):
     def idle(self):
         Gameplay.idle(self)
         glutPostRedisplay()
-        if self.ended == True:
+        if self.died == True:
             self.clean() #This will change to something that returns to the menu
 
     def clean(self):
         '''
         '''
+        
         Gameplay.clean(self)
+        self.menu.gameEnded(self.score,self.died)
         self.menu.getGlutControl()
 
 

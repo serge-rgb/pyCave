@@ -16,22 +16,45 @@ class Menu(Interface):
         self.startGame = False
         
         #=======
+        
         self.game = Game(self) #Allocate resources
-        self.getGlutControl() #Snatch control
-        glutMainLoop()        #Start everything
+        self.getGlutControl()  #Snatch control
+        glutMainLoop()
 
-    def display(self):
-        pass
+    def gameEnded(self,score,died):
+        '''
+        @param ended: True: You died, False: You quit.
+        '''
+        print 'You stayed alive for', score, 'seconds'
+        if died:
+            pass #add score
+        else:
+            pass
+    def clean(self):
+        sys.exit()
+        
+    #===========================
+    # Glut callbacks
+    #==========================
     
-    def keyboard(self,key,x,y):
-        pass
+    def display(self):
+        glClearColor(1,1,1,1)
+        glClear(GL_COLOR_BUFFER_BIT)
+        glutSwapBuffers()
+    
+    def keyboard(self,key,x,y):        
+        Interface.keyboard(self, key, x, y)
+        key = key.lower()
+        if key == 's':
+            self.startGame = True
     
     def idle(self):
-        if not self.startGame:
-            self.startGame = True
+        if self.startGame:        
+            self.startGame = False    
             self.game.getGlutControl()
+            self.game.start()
         else:
-            print 'Context!'
+            pass
     
     
 if __name__ == '__main__':

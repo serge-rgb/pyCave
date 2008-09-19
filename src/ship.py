@@ -34,16 +34,26 @@ class Ship(Model):
     Extends Model class to define the ship.
     '''
     def __init__(self,game):
+        
         Model.__init__(self,'media/ship.obj','media/ship.tga')
-        self.createDisplayList()
-        self.game = game
-        self.smoke = [] #List of smoke sprites.
+        
         spr = Sprite(smokeScale)
         spr.newTexture(fname)
         self.image = spr.image
+        
+        self.createDisplayList()
+        self.game = game
+        
+        self.reset()
+
+    def reset(self):
+        self.smoke = [] #List of smoke sprites.
+
+        spr = Sprite(smokeScale)
+        spr.setTexture(self.image)
         self.smoke.append(spr)
         self.addSmoke()
-        
+            
         #Standard acceleration and velocity.
         self.accel = 100  # units / time^2
         self.vel = 50  # units / time
@@ -52,8 +62,7 @@ class Ship(Model):
         #===z Rotation
         self.zSinInterval = 1
         self.zSin = 0
-
-    
+        
     def idle(self,diff):
         '''
         Move, self-rotate to look alive.
@@ -132,3 +141,6 @@ class Ship(Model):
     def drawSmoke(self):
         for spr in self.smoke:
             spr.draw()
+            
+if __name__ == '__main__':
+    from main import *            

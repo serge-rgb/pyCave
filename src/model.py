@@ -23,10 +23,15 @@ class Model:
         self.rotate = (0,0,0)
         self.list = 0
         #self.createDisplayList()
+        
+        
 
         self.texFile = texFile
         if self.texFile != 'none':
                 self.loadTexture(texFile)
+                del self.texture.texels #We won't be needing this memory
+                
+
 		
     def createDisplayList(self):
         print 'MESH: Creating display list...'
