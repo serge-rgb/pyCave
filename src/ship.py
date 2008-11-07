@@ -55,7 +55,7 @@ class Ship(Model):
         self.addSmoke()
             
         #Standard acceleration and velocity.
-        self.accel = 100  # units / time^2
+        self.accel = 200  # units / time^2
         self.vel = 50  # units / time
         self.pos = (0,10,0)
         self.oldPos = (10,0)

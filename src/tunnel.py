@@ -21,16 +21,18 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 
 #Default vertices per ring
-vertNum = 20
+vertNum = 35
 
 class Obstacle:
     def __init__(self,parent):
-        self.parent = parent
-        rad = int(round(parent.rad))
-        self.height = random.randint(-rad,rad)
+        
         #Size
         self.x = self.z = 5 #right now z has to be <= Tunnel.dz*2
         self.y = 40
+        self.parent = parent
+        diam = int(round(parent.rad)/2) 
+        self.height = random.randint(-diam,diam)
+
 
     def draw(self):
         glPushMatrix()
@@ -69,9 +71,11 @@ class Tunnel:
         self.rings = []
         self.maxRad = 40
         self.minRad = 30
+        #Y-Offset of each ring's position
         self.minOffset = -10
         self.maxOffset = 10
         self.scale = 2.0
+        #Scalars to control the sine wave that transform the tunnel.
         self.sineScale = 0.04
         self.sineOffset = 30
         self.currRing = 0
@@ -80,7 +84,7 @@ class Tunnel:
         self.pos = (0,0,0)
         #The speed by which the tunnel gets smaller
         self.red = 0.005
-        #The speed by which it moves (units per sec)
+        #The speed by which it moves (units per second)
         self.vel = 55
         #How far apart are the rings
         self.dz = 20
@@ -94,7 +98,7 @@ class Tunnel:
         #Translation in Z
         self.trans = -20
         
-    def move(self,time):
+    def idle(self,time):
         self.trans -= self.vel * time
         
     def newRing(self):
@@ -110,11 +114,16 @@ class Tunnel:
         self.pos = (self.pos[0],self.pos[1] + b*self.sineOffset ,self.pos[2] )
         ring = Ring(rad,self.pos)
         prevIndex = len(self.rings) -1
+        
+        #Add tangent information to the previous ring. Used in collision detection.
         if prevIndex > 0:
             prev = self.rings[prevIndex]
+            #tangent := a/b.
+            #aU upper a, aL lower
             aU = ring.pos[1] + ring.rad - (prev.pos[1] + prev.rad)
             aL = ring.pos[1] - ring.rad - (prev.pos[1] - prev.rad)
             b = self.dz
+            #Upper tangent and lower tangent. 
             tanU = float(aU)/b
             tanL = float(aL) /b
             #ring.tan = tan
@@ -122,6 +131,8 @@ class Tunnel:
             prev.lowerTan = tanL
             self.rings[prevIndex] = prev
         
+        
+        #Add an obstacle every 7 rings. (TODO: change that?)
         if len(self.rings) % 7 == 0 and len(self.rings)!= 0:
             ring.addObstacle()
         try:    
@@ -132,8 +143,6 @@ class Tunnel:
             pass
         self.rings.insert(self.currRing,ring)
         self.currRing+=1
-#        self.rings.append(ring)
-
 
     def draw(self):
         glMaterialfv(GL_FRONT,GL_DIFFUSE,(.9,.98,1,1))
@@ -181,7 +190,7 @@ class Tunnel:
                 v = (z[0] - y[0], z[1] - y[1] , z[2] - y[2]) #z-y
                 
                 #Cross product normal
-                #All quads in the Tunnel are coplanar
+                #All quads in the Tunnel are coplanar. There is only need for one normal.
                 n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
                 glNormal3fv(n)
                 glVertex3fv(x)
@@ -208,13 +217,9 @@ class Tunnel:
         
     def clear(self):
         '''
-        Delete all data in tunnel. (For usage when the game finishes
-        and a new tunnel needs to be generated)
+        TODO: Delete this method? The tunnel is only generated once.
         '''
-#        for ring in self.rings:
- #           del ring.verts[:]
-  #      del self.rings[:]
-        self.__init__()
+        pass
         
 if __name__=='__main__':
     from main import *

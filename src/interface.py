@@ -40,7 +40,7 @@ def initGraphics():
     glutInitWindowPosition (win.pos[0],win.pos[1])
     glClearStencil(0x1) 
     glutCreateWindow(win.title)
-        
+    
 class Interface:
     '''
     Interface to GLUT for window management.
@@ -50,7 +50,7 @@ class Interface:
         self.win = win        
         glutIgnoreKeyRepeat(1)
         self.getGlutControl()
-
+    
     def getGlutControl(self):
         glutDisplayFunc(self.display)
         glutReshapeFunc(self.reshape)

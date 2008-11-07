@@ -17,11 +17,12 @@
 from ship import *
 from tunnel import *
 
+
 def checkTunnel(ship,tunnel):
     index = int(abs(tunnel.trans/tunnel.dz))
     ra = tunnel.rings[index-1]  #ring behind the ship
     rb = tunnel.rings[index]#in front of the ship
-    dist = abs(tunnel.trans) - (tunnel.dz*index) #Distance from ra to the ship
+    dist = abs(tunnel.trans) - (tunnel.dz*index) #Distance from rb to the ship
 
     upper = ra.rad + ra.pos[1] + ra.upperTan*dist
     lower = -ra.rad + ra.pos[1] + ra.lowerTan*dist
@@ -35,8 +36,8 @@ def checkTunnel(ship,tunnel):
         zObs = (index+1) * tunnel.dz
         zShip = -tunnel.trans
         height2 = abs(obs.y/2.0)
-        disc = zShip - zObs + obs.z
-        if zObs - zShip < obs.z:
+        disc = zObs - zShip
+        if disc < obs.z: #within z-range
             if abs(obs.height - pos[1]) < height2: #within Y-range
                 return True
     return False

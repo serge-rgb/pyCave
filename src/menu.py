@@ -16,7 +16,7 @@ class Menu(Interface):
         self.startGame = False
         
         #=======
-        
+        self.count = 0
         self.game = Game(self) #Allocate resources
         self.getGlutControl()  #Snatch control
         glutMainLoop()
@@ -30,7 +30,10 @@ class Menu(Interface):
             pass #add score
         else:
             pass
+        self.count +=1
+        
     def clean(self):
+        print 'You played', self.count, 'times'
         sys.exit()
         
     #===========================
@@ -47,7 +50,7 @@ class Menu(Interface):
         key = key.lower()
         if key == 's':
             self.startGame = True
-    
+
     def idle(self):
         if self.startGame:        
             self.startGame = False    

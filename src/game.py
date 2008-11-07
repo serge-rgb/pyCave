@@ -39,17 +39,16 @@ class Game(Gameplay):
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
         #(-60, 70, -210), 
-        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120,1), 
-                           GL_LIGHT0, self.enable_shadows)
+        self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120,1), GL_LIGHT0, self.enable_shadows)
+        
         if self.enable_shadows and self.light.shadowMap.disabled:
-            print "WARNING: Disabling shadows" 
+            print "Warning: Disabling shadows" 
             self.enable_shadows = False
             
         self.light.look = (0, 0, 50)
-        self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30,1), 
-                                  GL_LIGHT1, False)
-        self.backLight = Light(self,(0.2,0.2,0.2,1),(-10,-50,-30,1),
-                               GL_LIGHT2,False)
+        self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30,1), GL_LIGHT1, False)
+        self.backLight = Light(self,(0.2,0.2,0.2,1),(-10,-50,-30,1), GL_LIGHT2,False)
+        
         self.ambientLight.on()
         self.light.on()
         self.backLight.on()
@@ -74,35 +73,30 @@ class Game(Gameplay):
         #=========================
         
         glEnable(GL_DEPTH_TEST)
-        self.tone = 0.3
+        self.backgroundTone = 0.3
         
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
-        #glClearColor(1.0, 1.0, 1.0, 0.0)
                 
     def drawGeometry(self,mode):
         '''
-        mode:
+        @param mode:
             0 - All
             1 - Shadow Casters
         '''
-       
-        if not mode == 1:
-            pass
-            #glCullFace(GL_BACK)
+        
+        renderingShadowCasters = mode == 1
+        
+        if not renderingShadowCasters:
             glDisable(GL_CULL_FACE)
         
         else:
             glEnable(GL_CULL_FACE)
             glCullFace(GL_FRONT)
-        #    glEnable(GL_CULL_FACE)
-            
         
-        #glCullFace(GL_FRONT)
         glActiveTexture(GL_TEXTURE0)
-        #Solid stuff
         self.tunnel.drawObstacles()
-        # NON-SHADOW-CASTERS NON-TEXTURED 
-        if not mode == 1:
+
+        if not renderingShadowCasters:
             self.tunnel.draw()
 
         # SOLID TEXTURED Casters==================
@@ -113,7 +107,7 @@ class Game(Gameplay):
         # Translucent textured stuff===
         
         # Translucent textured non-shadow-casters==
-        if not mode ==1 or mode==1:
+        if not renderingShadowCasters:
             self.ship.drawSmoke()
 
         glDisable(GL_TEXTURE_2D)
@@ -144,7 +138,7 @@ class Game(Gameplay):
             self.light.shadowMap.resize()
     
     def display(self):
-        glClearColor(self.tone, self.tone, self.tone, 0.0)
+        glClearColor(self.backgroundTone, self.backgroundTone, self.backgroundTone, 0.0)
         if profiling:
             cProfile.runctx('for x in xrange(10): self.render();',globals(),locals(),'prof')
         else:
@@ -152,10 +146,8 @@ class Game(Gameplay):
                     
     def render(self):    
         if self.enable_shadows:
-        #    glClear(GL_COLOR_BUFFER_BIT |  GL_DEPTH_BUFFER_BIT )
             glBindTexture(GL_TEXTURE_2D,self.light.shadowMap.dtexture)
             self.light.shadowMap.genMap()
-            #TODO: Lots of rendering time is spent here. Optimize
             self.light.shadowMap.genMatrix()
             
         self.renderFromEye()

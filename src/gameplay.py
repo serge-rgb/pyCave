@@ -45,7 +45,6 @@ class Gameplay(Interface):
         
     def start(self):
         self.cumTime = 0
-        self.loops = 0
         self.score = 0
         self.died = False 
         self.time = time.time()
@@ -56,10 +55,10 @@ class Gameplay(Interface):
             self.keyMap.append(0)
 
     def fillTunnel(self):
-        for i in xrange(370):  
+        numRings = 370
+        for i in xrange(numRings):  
             self.tunnel.newRing()
-        len = self.tunnel.rings[369].pos[2]
-        a = (len * 0.02) / (2*3.141526535897)
+        len = self.tunnel.rings[numRings-1].pos[2]
         self.tunnel.createList()
         self.tunnel.createObstacleList()
         
@@ -75,7 +74,6 @@ class Gameplay(Interface):
     
     def idle(self):
         '''
-        Here is where
         '''
         self.manageInput()
         diff = time.time() - self.time
@@ -84,20 +82,16 @@ class Gameplay(Interface):
             self.end()
 
         self.ship.idle(diff)
-        self.tunnel.move(diff)
+        self.tunnel.idle(diff)
         
         self.cumTime += diff
-        self.loops += 1
         self.time = time.time()
-       # print self.score
         
     def end(self):
         self.ship.die()
         self.died = True
         
     def clean(self):
-        #print "Average frametime: ", self.cumTime / self.loops
-        #print 1/(self.cumTime / self.loops)
         self.score = self.cumTime
         self.ship.reset()
         self.tunnel.reset()
