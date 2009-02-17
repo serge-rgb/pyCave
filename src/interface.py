@@ -18,6 +18,8 @@ from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
 import cProfile
+import music
+import time
 
 class Window:
     def __init__(self,title): 
@@ -74,8 +76,11 @@ class Interface:
         
     def keyboard(self,key,x,y):
         key = key.lower()
-        if key == 'q':
+        if key == 'q' or ord(key)==0x1b: #0x1b == exit
             self.clean()
+        if key == 'm':
+           music.mute()
+            
         
     def keyboardUp(self,key,x,y):
         pass

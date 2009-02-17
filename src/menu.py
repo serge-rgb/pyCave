@@ -1,5 +1,7 @@
 import sys
 from game import *
+import music
+import time
 
 class Menu(Interface):
     '''
@@ -19,17 +21,19 @@ class Menu(Interface):
         self.count = 0
         self.game = Game(self) #Allocate resources
         self.getGlutControl()  #Snatch control
+        music.new_music("media/pycave.mp3")
+        music.play()
         glutMainLoop()
 
     def gameEnded(self,score,died):
         '''
         @param ended: True: You died, False: You quit.
         '''
-        print 'You stayed alive for', score, 'seconds'
         if died:
-            pass #add score
+            print "SCORE:",score
         else:
-            pass
+            print "You quit the game"
+
         self.count +=1
         
     def clean(self):
@@ -39,7 +43,8 @@ class Menu(Interface):
     #===========================
     # Glut callbacks
     #==========================
-    
+
+    #TODO: Display options!        
     def display(self):
         glClearColor(1,1,1,1)
         glClear(GL_COLOR_BUFFER_BIT)
@@ -56,7 +61,10 @@ class Menu(Interface):
             self.startGame = False    
             self.game.getGlutControl()
             self.game.start()
+            music.stop()
         else:
+            music.play()
+            time.sleep(0.02)
             pass
     
     

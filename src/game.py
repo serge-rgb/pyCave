@@ -157,14 +157,13 @@ class Game(Gameplay):
         Gameplay.idle(self)
         glutPostRedisplay()
         if self.died == True:
-            self.clean() #This will change to something that returns to the menu
+            self.clean()
 
     def clean(self):
         '''
         '''
-        
         Gameplay.clean(self)
-        self.menu.gameEnded(self.score,self.died)
+        self.menu.gameEnded(self.score,self.died)#self.died may be false if user quit
         self.menu.getGlutControl()
 
 

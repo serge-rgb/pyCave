@@ -24,14 +24,17 @@ from OpenGL.GLUT import *
 vertNum = 35
 
 class Obstacle:
-    def __init__(self,parent):
-        
-        #Size
-        self.x = self.z = 5 #right now z has to be <= Tunnel.dz*2
-        self.y = 40
+    '''
+    @param parent: Ring
+    '''
+    def __init__(self,parent,scale,height):
+        #x y z: Size
+        self.x = self.z = 5*scale #right now z has to be <= Tunnel.dz*2
+        self.y = 20*scale
         self.parent = parent
-        diam = int(round(parent.rad)/2) 
-        self.height = random.randint(-diam,diam)
+        diam = int(round(parent.rad)*scale/4)
+        #height: position
+        self.height = height + random.randint(-diam,diam)
 
 
     def draw(self):
@@ -62,20 +65,20 @@ class Ring:
             res.append(v)
         return res
 
-    def addObstacle(self):
-        self.obstacle = Obstacle(self)
+    def addObstacle(self,scale):
+        self.obstacle = Obstacle(self,scale,self.pos[1])
 
 class Tunnel:
     def __init__(self):
-        #TODO: Change this to an array to save memory?
+        self.numRings = 370
         self.rings = []
-        self.maxRad = 40
-        self.minRad = 30
+        self.maxRad = 40#40
+        self.minRad = 30#30
         #Y-Offset of each ring's position
         self.minOffset = -10
         self.maxOffset = 10
         self.scale = 2.0
-        #Scalars to control the sine wave that transform the tunnel.
+        #Scalars to control the sine wave that transforms the tunnel.
         self.sineScale = 0.04
         self.sineOffset = 30
         self.currRing = 0
@@ -90,9 +93,12 @@ class Tunnel:
         self.dz = 20
         #Display list
         self.list = 0
-        #Obstacle dList
+        #Obstacle display list
         self.objlist=0
         self.reset()
+        
+        #Procedurally generate the tunnel:
+        self.fill()
 
     def reset(self):
         #Translation in Z
@@ -132,18 +138,27 @@ class Tunnel:
             self.rings[prevIndex] = prev
         
         
-        #Add an obstacle every 7 rings. (TODO: change that?)
-        if len(self.rings) % 7 == 0 and len(self.rings)!= 0:
-            ring.addObstacle()
+        #Add an obstacle on a random basis
+        if len(self.rings)% 10 == random.randint(0,9) and len(self.rings) > 5:
+            ring.addObstacle(self.scale)
+
         try:    
             del self.rings[self.currRing].verts
             del self.rings[self.currRing]
         except:
-            #No problem if it was empty
-            pass
+            pass #No problem if it was empty
         self.rings.insert(self.currRing,ring)
         self.currRing+=1
 
+    def fill(self):
+
+        for i in xrange(self.numRings):  
+            self.newRing()
+        len = self.rings[self.numRings-1].pos[2]
+        self.createList()
+        self.createObstacleList()
+        
+    
     def draw(self):
         glMaterialfv(GL_FRONT,GL_DIFFUSE,(.9,.98,1,1))
         glMaterialfv(GL_BACK,GL_DIFFUSE,(0,0,0,1))
@@ -161,7 +176,7 @@ class Tunnel:
         glTranslatef(0,0,self.trans)
         glCallList(self.objlist)
         glPopMatrix() 
-    
+
     def createList(self):
     	'''
     	Just one display list for a tunnel with ~4000 triangles. Make
@@ -192,6 +207,8 @@ class Tunnel:
                 #Cross product normal
                 #All quads in the Tunnel are coplanar. There is only need for one normal.
                 n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
+
+                #SLOW: This func. calls are the bottleneck:
                 glNormal3fv(n)
                 glVertex3fv(x)
                 glVertex3fv(y)

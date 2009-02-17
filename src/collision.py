@@ -17,30 +17,42 @@
 from ship import *
 from tunnel import *
 
+class Persist:
+    lastChecked = None
+
+pers = Persist()
 
 def checkTunnel(ship,tunnel):
     index = int(abs(tunnel.trans/tunnel.dz))
     ra = tunnel.rings[index-1]  #ring behind the ship
     rb = tunnel.rings[index]#in front of the ship
     dist = abs(tunnel.trans) - (tunnel.dz*index) #Distance from rb to the ship
-
+    
+    #Bounds
     upper = ra.rad + ra.pos[1] + ra.upperTan*dist
     lower = -ra.rad + ra.pos[1] + ra.lowerTan*dist
     if ship.pos[1] > upper or ship.pos[1] < lower:
-        return True
+        return (True,0)
     
       #Now we check for an obstacle
+    bonus = 0
     if hasattr(tunnel.rings[index],'obstacle'):
         pos = ship.pos
         obs = tunnel.rings[index].obstacle
         zObs = (index+1) * tunnel.dz
         zShip = -tunnel.trans
-        height2 = abs(obs.y/2.0)
+        y2 = abs(obs.y/2.0)
         disc = zObs - zShip
         if disc < obs.z: #within z-range
-            if abs(obs.height - pos[1]) < height2: #within Y-range
-                return True
-    return False
+            if abs(obs.height - pos[1]) < y2: #within Y-range
+                return (True,0)
+            
+        if pers.lastChecked!=rb and abs(obs.height - pos[1]) < 20:
+           bonus=100
+           pers.lastChecked=rb
+
+    lastChecked = rb
+    return (False,bonus)
 
 if __name__ == '__main__':
     from main import *

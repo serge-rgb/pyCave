@@ -1,23 +1,24 @@
 Document classes/funcs
 
 Game:
-Make obstacles always be inside tunnel.
-Make obstacles not block tunnel.
+***Make obstacles always be inside tunnel.
+***Make obstacles not block tunnel.
 ***Make it more difficult.
+***Audio with pyAudio?
 Make a ship.
 Make objects.
 Make a decent score system
-Hi-scores
+Make a sudden death mode.
 
-Effects:
-***Sprite system
-Write tunnel shadow volumes
-?Write shader for non-black shadows
-***Separate display list for obstacles.
- 
 UI:
 Menu
 Hi-scores display
 
+Effects:
+***Sprite system
+?Write shader for non-black shadows
+***Separate display list for obstacles.
 
+Polishing:
+Make tunnel display creation fast.
 

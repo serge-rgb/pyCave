@@ -24,6 +24,7 @@ profiling = False
 
 if profiling:
     import cProfile
+mortal = True
 
 class Gameplay(Interface):
     '''
@@ -31,7 +32,7 @@ class Gameplay(Interface):
     @summary: Manages collisions, the ship, the cave, I/O
     '''
     def __init__(self):
-
+        self.scorePerSecond = 10 #Each second merits 10 score.
         Interface.__init__(self)
         
         self.ship = Ship(self)
@@ -39,7 +40,6 @@ class Gameplay(Interface):
         #======================
         #TUNNEL
         self.tunnel = Tunnel()
-        self.fillTunnel()
         #=======================        
         self.start()
         
@@ -53,15 +53,7 @@ class Gameplay(Interface):
         self.keyMap = []
         for i in xrange(0,256):
             self.keyMap.append(0)
-
-    def fillTunnel(self):
-        numRings = 370
-        for i in xrange(numRings):  
-            self.tunnel.newRing()
-        len = self.tunnel.rings[numRings-1].pos[2]
-        self.tunnel.createList()
-        self.tunnel.createObstacleList()
-        
+            
     def keyboard(self,key,x,y):
         Interface.keyboard(self, key, x, y)
         self.keyMap[ord(key)] = 1
@@ -77,12 +69,23 @@ class Gameplay(Interface):
         '''
         self.manageInput()
         diff = time.time() - self.time
-        crashed = collision.checkTunnel(self.ship,self.tunnel)
-        if crashed:
+            
+        (crashed,plus) = collision.checkTunnel(self.ship,self.tunnel)
+
+        if mortal and crashed:
             self.end()
 
-        self.ship.idle(diff)
+        daredevil = self.ship.idle(diff)
         self.tunnel.idle(diff)
+
+        #======Score editing
+        if plus!=0 and daredevil:
+            self.score+=plus
+            print "DAREDEVIL"
+            
+        self.score+=diff*self.scorePerSecond
+           
+
         
         self.cumTime += diff
         self.time = time.time()
@@ -92,7 +95,6 @@ class Gameplay(Interface):
         self.died = True
         
     def clean(self):
-        self.score = self.cumTime
         self.ship.reset()
         self.tunnel.reset()
         

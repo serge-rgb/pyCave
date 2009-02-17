@@ -19,7 +19,7 @@ from sprite import *
 import math
 
 
-fname = 'media/smoke.tga' #smoke texture
+smokefname = 'media/smoke.tga' #smoke texture
 
 #====Smoke parameters
 smokeScale = 0.6
@@ -38,7 +38,7 @@ class Ship(Model):
         Model.__init__(self,'media/ship.obj','media/ship.tga')
         
         spr = Sprite(smokeScale)
-        spr.newTexture(fname)
+        spr.newTexture(smokefname)
         self.image = spr.image
         
         self.createDisplayList()
@@ -55,7 +55,7 @@ class Ship(Model):
         self.addSmoke()
             
         #Standard acceleration and velocity.
-        self.accel = 200  # units / time^2
+        self.accel = 250  # units / time^2
         self.vel = 50  # units / time
         self.pos = (0,10,0)
         self.oldPos = (10,0)
@@ -70,20 +70,28 @@ class Ship(Model):
         self.oldYpos = self.pos[1]
         self.smokeIdle(diff) 
         self.fall(diff)
-        self.thrustRotation()
+        daredevil = self.thrustRotation()
         self.zRotation(diff)
+        
+        return daredevil
 
     def thrustRotation(self):
+        daredevil = False
+
         y = self.pos[1]
         z = -self.game.tunnel.trans
         dot = z - self.oldPos[1]
         norm = math.sqrt( (y-self.oldPos[0])**2 +  dot**2 ) 
         cosang = float(dot)/norm
         ang = (math.acos(cosang)*180)/3.14159265
+        if abs(ang)>45:
+           daredevil=True
+            
         if(y>self.oldPos[0]):
             ang = -ang
         self.rotate = (ang,self.rotate[1],self.rotate[2])
         self.oldPos = (y,z)
+        return daredevil
         
     def zRotation(self,diff):
         self.zSin += self.zSinInterval*diff
