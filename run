@@ -1,3 +1,6 @@
 #!/bin/bash
-cd src
+
+dname=`dirname "$0"`
+cd $dname"/src"
+
 python -c 'import main'
