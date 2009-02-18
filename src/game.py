@@ -73,7 +73,7 @@ class Game(Gameplay):
         #=========================
         
         glEnable(GL_DEPTH_TEST)
-        self.backgroundTone = 0.3
+        self.backgroundTone = 0.2
         
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA)
                 
@@ -157,6 +157,13 @@ class Game(Gameplay):
         glScalef(.0006,.0006,0)
         glutils.drawBitmapString("Score: " +  str(int(self.score))) #+" "+str(self.fps))
         glPopMatrix()
+        if self.hardcore:
+            glPushMatrix()
+            glTranslatef(-0.55,-0.6,0)
+            glScalef(0.001,0.001,0)
+            glutils.drawBitmapString("HARDCORE MODE")
+            glPopMatrix()
+        
         
     def render(self):    
         if self.enable_shadows:

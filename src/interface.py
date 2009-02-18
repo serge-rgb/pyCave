@@ -63,7 +63,7 @@ class Interface:
         
     def display(self):
         '''
-        This will be inherited and used by the game and renderer.
+        This will be inherited and used by the me and renderer.
         '''
         pass
     

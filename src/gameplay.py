@@ -24,7 +24,7 @@ profiling = False
 
 if profiling:
     import cProfile
-mortal = False#True
+mortal = True#False
 
 class Gameplay(Interface):
     '''
@@ -34,7 +34,7 @@ class Gameplay(Interface):
     def __init__(self):
         self.scorePerSecond = 10 #Each second merits 10 score.
         Interface.__init__(self)
-        
+        self.hardcore = False
         self.ship = Ship(self)
                 
         #======================
@@ -74,13 +74,20 @@ class Gameplay(Interface):
 
         if mortal and crashed:
             self.end()
-
+            
         daredevil = self.ship.idle(diff)
         self.tunnel.idle(diff)
         #======Score editing
         if plus!=0 and daredevil:
-s            self.score+=plus
+            self.score+=plus
             print "DAREDEVIL"
+        if not self.hardcore and self.tunnel.trans < -5500:
+            self.hardcore=True
+            #TODO--- add interlude
+            self.tunnel.reset()
+            seld.ship.reset()
+            self.tunnel.vel = 100
+            self.scorePerSecond*=3
             
         self.score+=diff*self.scorePerSecond
         self.fps = 1/diff

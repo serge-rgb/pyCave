@@ -1,14 +1,10 @@
 Document classes/funcs
 
 Game:
-***Make obstacles always be inside tunnel.
-***Make obstacles not block tunnel.
-***Make it more difficult.
-***Audio with pyAudio?
 Make a ship.
 Make objects.
 Make a decent score system
-Make a sudden death mode.
+Add interlude for hardcore mode
 
 UI:
 Menu
