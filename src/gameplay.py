@@ -24,7 +24,7 @@ profiling = False
 
 if profiling:
     import cProfile
-mortal = True
+mortal = False#True
 
 class Gameplay(Interface):
     '''
@@ -77,15 +77,13 @@ class Gameplay(Interface):
 
         daredevil = self.ship.idle(diff)
         self.tunnel.idle(diff)
-
         #======Score editing
         if plus!=0 and daredevil:
-            self.score+=plus
+s            self.score+=plus
             print "DAREDEVIL"
             
         self.score+=diff*self.scorePerSecond
-           
-
+        self.fps = 1/diff
         
         self.cumTime += diff
         self.time = time.time()

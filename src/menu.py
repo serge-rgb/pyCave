@@ -1,7 +1,5 @@
 import sys
 from game import *
-import music
-import time
 
 class Menu(Interface):
     '''
@@ -53,7 +51,8 @@ class Menu(Interface):
     def keyboard(self,key,x,y):        
         Interface.keyboard(self, key, x, y)
         key = key.lower()
-        if key == 's':
+        print ord(key)
+        if key == 's' or key == '\n':
             self.startGame = True
 
     def idle(self):

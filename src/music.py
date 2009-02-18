@@ -3,15 +3,13 @@ import pygame.mixer as mixer
 mixer.init(44100,-16,6,3072)
 mixer.music.set_volume(1.0)
 
-muted = False
-
 def mute ():
-	if muted == False:
+	muted = mixer.music.get_volume()==0.0
+
+	if not muted:
 		mixer.music.set_volume(0.0)
-		muted = True
 	else:
 		mixer.music.set_volume(1.0)
-		muted = False
 	
 def new_music (music_file):
 	""""""

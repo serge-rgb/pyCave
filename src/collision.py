@@ -17,12 +17,11 @@
 from ship import *
 from tunnel import *
 
-class Persist:
-    lastChecked = None
-
-pers = Persist()
+lastChecked = None
 
 def checkTunnel(ship,tunnel):
+    global lastChecked
+    
     index = int(abs(tunnel.trans/tunnel.dz))
     ra = tunnel.rings[index-1]  #ring behind the ship
     rb = tunnel.rings[index]#in front of the ship
@@ -47,9 +46,9 @@ def checkTunnel(ship,tunnel):
             if abs(obs.height - pos[1]) < y2: #within Y-range
                 return (True,0)
             
-        if pers.lastChecked!=rb and abs(obs.height - pos[1]) < 20:
+        if lastChecked!=rb and abs(obs.height - pos[1]) < 20:
            bonus=100
-           pers.lastChecked=rb
+           lastChecked=rb
 
     lastChecked = rb
     return (False,bonus)

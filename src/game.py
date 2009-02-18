@@ -102,7 +102,9 @@ class Game(Gameplay):
         # SOLID TEXTURED Casters==================
         glActiveTexture(GL_TEXTURE1)
         glEnable(GL_BLEND)
+        glEnable(GL_POLYGON_SMOOTH)
         glEnable(GL_TEXTURE_2D)
+        glEnable(GL_LINE_SMOOTH)
         self.ship.draw()
         # Translucent textured stuff===
         
@@ -143,7 +145,19 @@ class Game(Gameplay):
             cProfile.runctx('for x in xrange(10): self.render();',globals(),locals(),'prof')
         else:
             self.render()
-                    
+
+    def renderScore (self):
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glPushMatrix()
+        glColor4f(1,1,1,1)
+        glTranslatef(0.5,0.8,0)
+        glScalef(.0006,.0006,0)
+        glutils.drawBitmapString("Score: " +  str(int(self.score))) #+" "+str(self.fps))
+        glPopMatrix()
+        
     def render(self):    
         if self.enable_shadows:
             glBindTexture(GL_TEXTURE_2D,self.light.shadowMap.dtexture)
@@ -151,6 +165,7 @@ class Game(Gameplay):
             self.light.shadowMap.genMatrix()
             
         self.renderFromEye()
+        self.renderScore()
         glutSwapBuffers()
     
     def idle(self):
