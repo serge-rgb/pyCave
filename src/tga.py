@@ -30,14 +30,13 @@ class TgaTexture:
 		#Skip useless stuff
 		f.seek(12)
 		
-		w = struct.unpack('h', f.read(2))
-		h = struct.unpack('h', f.read(2))
-		bpp = struct.unpack('B', f.read(1))
+		(w,) = struct.unpack('h', f.read(2))
+		(h,) = struct.unpack('h', f.read(2))
+		(bpp,) = struct.unpack('B', f.read(1))
 		descriptor = f.read(1)
 		
-		self.size = (w[0],h[0])
-		self.bpp = bpp[0]
-		
+		self.size = (w,h)
+		self.bpp = bpp
 		#Tga format stores it as BGR.
 		#Let OpenGL do the changing.
 		if self.bpp == 24:
@@ -46,14 +45,13 @@ class TgaTexture:
 		if self.bpp == 32:
 			self.internFormat = 4
 			self.texFormat = GL_BGRA
-		else:
-			print "Image Format not supported"
+		elif self.bpp!=24 and self.bpp!=32:
+			print "Image Format not supported", self.bpp,'@',self.size
 			exit(-1)
 		 
 		pixnum = self.size[0] * self.size[1]
 		imgSize = pixnum * self.internFormat
 		self.texels = f.read(imgSize)
-		
 		f.close()
 		print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
 		

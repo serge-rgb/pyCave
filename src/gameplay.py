@@ -81,11 +81,13 @@ class Gameplay(Interface):
         if plus!=0 and daredevil:
             self.score+=plus
             print "DAREDEVIL"
+
+        #======Enter hardcore mode when almost at the end.
         if not self.hardcore and self.tunnel.trans < -5500:
             self.hardcore=True
             #TODO--- add interlude
             self.tunnel.reset()
-            seld.ship.reset()
+            self.ship.reset()
             self.tunnel.vel = 100
             self.scorePerSecond*=3
             

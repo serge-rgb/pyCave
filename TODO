@@ -7,13 +7,11 @@ Make a decent score system
 Add interlude for hardcore mode
 
 UI:
-Menu
+Make menu better
 Hi-scores display
 
 Effects:
-***Sprite system
 ?Write shader for non-black shadows
-***Separate display list for obstacles.
 
 Polishing:
 Make tunnel display creation fast.

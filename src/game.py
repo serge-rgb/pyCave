@@ -155,13 +155,13 @@ class Game(Gameplay):
         glColor4f(1,1,1,1)
         glTranslatef(0.5,0.8,0)
         glScalef(.0006,.0006,0)
-        glutils.drawBitmapString("Score: " +  str(int(self.score))) #+" "+str(self.fps))
+        glutils.drawString("Score: " +  str(int(self.score))) #+" "+str(self.fps))
         glPopMatrix()
         if self.hardcore:
             glPushMatrix()
             glTranslatef(-0.55,-0.6,0)
             glScalef(0.001,0.001,0)
-            glutils.drawBitmapString("HARDCORE MODE")
+            glutils.drawString("HARDCORE MODE")
             glPopMatrix()
         
         

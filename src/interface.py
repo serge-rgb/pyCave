@@ -1,4 +1,4 @@
-#    This file is part of pyCave.
+ #    This file is part of pyCave.
 #
 #    pyCave is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -43,16 +43,21 @@ def initGraphics():
     glutInitWindowPosition (win.pos[0],win.pos[1])
     glClearStencil(0x1) 
     glutCreateWindow(win.title)
-    
+    glEnable(GL_POLYGON_SMOOTH)
+    glEnable(GL_TEXTURE_2D)
+    glEnable(GL_LINE_SMOOTH)
+
 class Interface:
     '''
     Interface to GLUT for window management.
     '''
     def __init__(self):
 #        self.win = Window()
-        self.win = win        
+        self.win = win
+    
         glutIgnoreKeyRepeat(1)
         self.getGlutControl()
+        
     
     def getGlutControl(self):
         glutDisplayFunc(self.display)

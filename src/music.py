@@ -23,6 +23,7 @@ def new_music (music_file):
 def play():
 	try:
 		if not mixer.music.get_busy():
+			mixer.music.rewind()
 			mixer.music.play()			
 	except:
 		print "Error playing music"

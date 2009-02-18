@@ -53,7 +53,7 @@ class Sprite:
     def createDisplayList(self):
         self.list = glGenLists(1)
         glNewList(self.list,GL_COMPILE)
-        glBegin(GL_POLYGON)
+        glBegin(GL_QUADS)
         glMultiTexCoord2f(GL_TEXTURE1,1 ,1)
         glVertex3i(0,10,10)
         glMultiTexCoord2f(GL_TEXTURE1,1,0)
