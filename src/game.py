@@ -38,7 +38,8 @@ class Game(Gameplay):
          
         glEnable(GL_LIGHTING)
         self.enable_shadows = True
-        #(-60, 70, -210), 
+        #(-60, 70, -210),
+        #This is the shadow-emitting light. 
         self.light = Light(self, (1, 1, 1, 1), (-20, 0,-120,1), GL_LIGHT0, self.enable_shadows)
         
         if self.enable_shadows and self.light.shadowMap.disabled:
@@ -163,7 +164,41 @@ class Game(Gameplay):
             glScalef(0.001,0.001,0)
             glutils.drawString("HARDCORE MODE")
             glPopMatrix()
+
+    
+    def displayHardcoreInterlude (self):
+        glClearColor(1,1,1,1)
+        glClear(GL_COLOR_BUFFER_BIT)
+        glClear(GL_DEPTH_BUFFER_BIT)        
+        glPushMatrix() 
+        glTranslatef(-1,0,0)
+        glScalef(0.0006,0.0006,0)
+        glutils.drawString('YOU HAVE ENTERED HARDCORE MODE')
+        glPopMatrix()
+        glPushMatrix() 
+        glTranslatef(-1,-0.2,0)
+        glScalef(0.0006,0.0006,0)
+        glutils.drawString('(press enter to continue)')
+        glPopMatrix()
+
+        glutSwapBuffers()
+        print 'disp'
         
+    def hardcoreKey (self, key, x, y):
+        if ord(key) == 13:
+           self.getGlutControl()
+           del self.interstart
+           self.time = time.time()
+    def hardcoreInterlude (self):
+        """Draw a little interlude"""
+        if not hasattr(self,"interstart"):
+            self.interstart = time.time()
+            print 'interlude'
+            glutDisplayFunc(self.displayHardcoreInterlude)
+            glutIdleFunc(glutPostRedisplay)
+            glutKeyboardFunc(self.hardcoreKey)
+
+        print time.time() - self.interstart
         
     def render(self):    
         if self.enable_shadows:

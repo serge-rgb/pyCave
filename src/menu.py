@@ -18,7 +18,7 @@ class Menu(Interface):
         #=======
         self.count = 0
         self.getGlutControl()  #Snatch control
-        self.logo = TgaTexture("media/pycaveLogo.tga")
+        self.logo = TgaTexture("media/pycavelogo2.tga")
         self.logo.newGLTexture()
 
         self.playerName = ""
@@ -118,7 +118,7 @@ class Menu(Interface):
         glPushMatrix() 
         glTranslatef(-1,0,0)
         glScalef(0.0006,0.0006,0)
-        glutils.drawString("Please insert your name:")
+        glutils.drawString("Please insert your name (or press Esc):")
         glPopMatrix()
         glPushMatrix() 
         glTranslatef(-1,-0.2,0)
@@ -127,10 +127,45 @@ class Menu(Interface):
         glPopMatrix()
         glutSwapBuffers()
         
+#============Highscore displaying            
+    def hsDisplay(self):
+        self.clearGL()
+        glPushMatrix() 
+        glTranslatef(-1,0.8,0)
+        glScalef(0.0006,0.0006,0)
+        glutils.drawString("Highscores:  (Press Enter/Esc to continue)")
+        glPopMatrix()
+        
+        def showElem (i,offset,elem):
+            glPushMatrix() 
+            glTranslatef(-0.6,offset,0)
+            glScalef(0.0004,0.0004,0)
+            glutils.drawString(str(i) + '- ' + elem.name + ":   " + str(elem.score))
+            glPopMatrix()
+        offset = 0.6
+        i = 1
+        for elem in reversed(highscores.load()):
+            showElem(i,offset,elem)
+            offset-=0.1
+            i+=1
+        glutSwapBuffers()
+        
+    def hsKeyboard(self,key,x,y):
+        if ord(key)==0x1b or ord(key)==13:
+            self.menuControl()
+        
+    def showHighscores (self):
+        """"""            
+        self.display = self.hsDisplay
+        self.keyboard = self.hsKeyboard
+        self.getGlutControl()
+        
     def menuKeyboard(self,key,x,y):        
         Interface.keyboard(self, key, x, y)
         key = key.lower()
-        print ord(key)
+        if key == 'h':
+           self.showHighscores()
+           
         if key == 's' or ord(key) == 13:
             self.startGame = True
             

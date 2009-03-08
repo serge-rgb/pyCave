@@ -20,8 +20,13 @@ from OpenGL.GL.ARB.shadow_ambient import *
 from OpenGL.GL.EXT.framebuffer_object import *
 from OpenGL.GLU import *
 from OpenGL.GLUT import *
-import numpy
 #import c_module
+
+#WARNING -- To those who dare to change the parameters to the shadow map
+# and to the position of the light variable on the Game class:
+# ..
+# It's almost impossible to get a better looking configuration for
+# their parameters.
 
 
 class Light:
@@ -54,6 +59,8 @@ class Light:
     
     def off(self):
         glDisable(self.num)
+
+
 
 near = 50
 far = 350
@@ -112,10 +119,15 @@ class ShadowMap:
         print 'SHADOW MAP: Created Shadow Map with name', self.dtexture
         
     def transposeMatrix(self,mat):
-        res = numpy.array([[0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0],
-                           [0,0,0,0]],dtype=float)
+#        res = numpy.array([[0,0,0,0],
+#                           [0,0,0,0],
+#                           [0,0,0,0],
+#                           [0,0,0,0]],dtype=float)
+        res = [[0,0,0,0],
+               [0,0,0,0],
+               [0,0,0,0],
+               [0,0,0,0]]
+               
         for i in xrange(4):
             for j in xrange(4):
                 res[i][j] = mat[j][i]

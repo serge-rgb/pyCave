@@ -53,11 +53,9 @@ def load ():
           
 def add (hs,new):
     def cmp (hs1, hs2):
-        print "COMPARING" , hs1,hs2,hs1.score-hs2.score
         return int(hs1.score - hs2.score)
     if len(hs+[new])>10:
        del hs[0]
-    print "DATA" ,hs,new
     return sorted(hs+[new],cmp)
 
 def isCandidate (highscores,score):

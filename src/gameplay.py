@@ -35,6 +35,7 @@ class Gameplay(Interface):
         self.scorePerSecond = 10 #Each second merits 10 score.
         Interface.__init__(self)
         self.hardcore = False
+        self.hardcoreLimit = 5500
         self.ship = Ship(self)
                 
         #======================
@@ -63,7 +64,23 @@ class Gameplay(Interface):
         
     def manageInput(self):
         pass
-    
+
+    def hardcoreInterlude (self):
+        """Leave this empty. Implement in Game class"""
+
+
+    def toHardcore (self):
+        """"""
+        self.hardcore=True
+        self.hardcoreInterlude()
+        self.tunnel.vel = 100
+        self.scorePerSecond*=3
+
+    def fromHardcore (self):
+        self.hardcore = False
+        self.tunnel.vel = 55
+        self.scorePerSecond/=3
+        
     def idle(self):
         '''
         '''
@@ -80,16 +97,13 @@ class Gameplay(Interface):
         #======Score editing
         if plus!=0 and daredevil:
             self.score+=plus
-            print "DAREDEVIL"
+#            print "DAREDEVIL"
 
         #======Enter hardcore mode when almost at the end.
-        if not self.hardcore and self.tunnel.trans < -5500:
-            self.hardcore=True
-            #TODO--- add interlude
+        if not self.hardcore and self.tunnel.trans < -self.hardcoreLimit:
+            self.toHardcore()
             self.tunnel.reset()
             self.ship.reset()
-            self.tunnel.vel = 100
-            self.scorePerSecond*=3
             
         self.score+=diff*self.scorePerSecond
         self.fps = 1/diff
@@ -99,9 +113,12 @@ class Gameplay(Interface):
         
     def end(self):
         self.ship.die()
+
         self.died = True
         
     def clean(self):
+        #Reset
+        self.fromHardcore()
         self.ship.reset()
         self.tunnel.reset()
         
