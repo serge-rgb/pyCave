@@ -1,10 +1,10 @@
 import sys
 from game import *
 from tga import *
+import highscores
 class Menu(Interface):
     '''
     @requires: Game
-    @summary: Extends Game to be controlled by a Menu.
     '''
     def __init__(self):
         '''
@@ -21,9 +21,13 @@ class Menu(Interface):
         self.logo = TgaTexture("media/pycaveLogo.tga")
         self.logo.newGLTexture()
 
+        self.playerName = ""
+
         #Allocate resources
         #--- we do it in a temporary display func so that we can
         #--- show a load screen.
+        self.display = self.displayMenu
+        self.keyboard = self.menuKeyboard
         def tmp_display ():
             self.loadingScreen()
             self.game = Game(self)
@@ -35,9 +39,13 @@ class Menu(Interface):
 
         glutMainLoop()
 
+    def menuControl ( self):
+        self.keyboard = self.menuKeyboard
+        self.display = self.displayMenu
+        self.getGlutControl()
+
     def loadingScreen (self):
-        glClearColor(1,1,1,1)
-        glClear(GL_COLOR_BUFFER_BIT)
+        self.clearGL()
         glPushMatrix()
         glTranslatef(-1,0,0)
         glScalef(0.0006,0.0006,0)
@@ -50,10 +58,13 @@ class Menu(Interface):
         @param ended: True: You died, False: You quit.
         '''
         if died:
-            print "SCORE:",score
+            if highscores.checkNewScore(score):
+                self.display = self.askNameDisplay
+                self.score = score
+                self.keyboard = self.askNameKeyboard
         else:
-            print "You quit the game"
-        
+            pass #User quit the game. No highscore submission.
+
         self.count +=1
         
     def clean(self):
@@ -63,22 +74,22 @@ class Menu(Interface):
     #===========================
     # Glut callbacks
     #==========================
-    #TODO: Display options!        
-    def display(self):
+    #TODO: Display options!
+    def clearGL (self):
         glClearColor(1,1,1,1)
         
         glClear(GL_COLOR_BUFFER_BIT)
         glClear(GL_DEPTH_BUFFER_BIT)
 
-#        glViewport(0,0,1024,540)
-
+    def displayMenu(self):
+        self.clearGL()
+        
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
         glDisable(GL_LIGHTING)
-
         glEnable(GL_TEXTURE_2D)
         glActiveTexture(GL_TEXTURE1)
         glBindTexture(GL_TEXTURE_2D,self.logo.name)
@@ -101,13 +112,41 @@ class Menu(Interface):
         glEnable(GL_LIGHTING)
         glutSwapBuffers()
 
-    def keyboard(self,key,x,y):        
+    def askNameDisplay (self):
+        """"""
+        self.clearGL()
+        glPushMatrix() 
+        glTranslatef(-1,0,0)
+        glScalef(0.0006,0.0006,0)
+        glutils.drawString("Please insert your name:")
+        glPopMatrix()
+        glPushMatrix() 
+        glTranslatef(-1,-0.2,0)
+        glScalef(0.0006,0.0006,0)
+        glutils.drawString(self.playerName)
+        glPopMatrix()
+        glutSwapBuffers()
+        
+    def menuKeyboard(self,key,x,y):        
         Interface.keyboard(self, key, x, y)
         key = key.lower()
         print ord(key)
-        if key == 's' or key == '\n':
+        if key == 's' or ord(key) == 13:
             self.startGame = True
-
+            
+    def askNameKeyboard (self, key, x, y):
+        if ord(key) == 13: #Enter
+            highscores.maybeStore(self.playerName,self.score)
+            self.menuControl() 
+            return
+        if ord(key) == 8: #delete key
+            self.playerName = self.playerName[0:-1]
+            return
+        if ord(key) == 0x1b: #exit
+            self.menuControl()
+           
+        self.playerName+=key
+        
     def idle(self):
         if self.startGame:        
             self.startGame = False    
