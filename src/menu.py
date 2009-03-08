@@ -140,7 +140,7 @@ class Menu(Interface):
             glPushMatrix() 
             glTranslatef(-0.6,offset,0)
             glScalef(0.0004,0.0004,0)
-            glutils.drawString(str(i) + '- ' + elem.name + ":   " + str(elem.score))
+            glutils.drawString(str(i) + '- ' + elem.name + ":   " + str(int(elem.score)))
             glPopMatrix()
         offset = 0.6
         i = 1
