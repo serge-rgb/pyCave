@@ -3,12 +3,6 @@ Document classes/funcs
 Game:
 Make a ship.
 Make objects.
-Make a decent score system
-Add interlude for hardcore mode
-
-UI:
-Make menu better
-Hi-scores display
 
 Effects:
 ?Write shader for non-black shadows
