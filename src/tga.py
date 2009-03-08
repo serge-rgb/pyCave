@@ -53,7 +53,7 @@ class TgaTexture:
 		imgSize = pixnum * self.internFormat
 		self.texels = f.read(imgSize)
 		f.close()
-		print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
+#		print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
 		
 	def newGLTexture(self):
 		#self.name = name
@@ -67,7 +67,7 @@ class TgaTexture:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 		
 		glTexImage2D(GL_TEXTURE_2D, 0,self.internFormat,self.size[0],self.size[1],0,self.texFormat,GL_UNSIGNED_BYTE,self.texels)
-		print 'TGALOADER: Stored 2D texture in OpenGL with name', self.name
+#		print 'TGALOADER: Stored 2D texture in OpenGL with name', self.name
 		
 		
 		

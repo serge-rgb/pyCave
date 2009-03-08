@@ -182,7 +182,7 @@ class Tunnel:
     	Just one display list for a tunnel with ~4000 triangles. Make
     	it more efficient?
     	'''
-        print 'TUNNEL: Creating display list...'
+#        print 'TUNNEL: Creating display list...'
         self.list = glGenLists(1)
         glNewList(self.list,GL_COMPILE)
         glBegin(GL_QUADS)
@@ -217,7 +217,7 @@ class Tunnel:
         glEnd()
 
         glEndList()
-        print 'Done.'
+#        print 'Done.'
 
     def createObstacleList(self):
         self.objlist = glGenLists(1)

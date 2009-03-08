@@ -116,7 +116,7 @@ class ShadowMap:
         
         glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
           
-        print 'SHADOW MAP: Created Shadow Map with name', self.dtexture
+#        print 'SHADOW MAP: Created Shadow Map with name', self.dtexture
         
     def transposeMatrix(self,mat):
 #        res = numpy.array([[0,0,0,0],

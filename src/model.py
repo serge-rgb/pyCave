@@ -34,7 +34,7 @@ class Model:
 
 		
     def createDisplayList(self):
-        print 'MESH: Creating display list...'
+#        print 'MESH: Creating display list...'
         self.list = glGenLists(1)
         glNewList(self.list,GL_COMPILE)
         glBegin(GL_TRIANGLES)       
@@ -58,7 +58,7 @@ class Model:
                 glVertex4fv(v)
         glEnd()
         glEndList()
-        print 'Done.'
+#        print 'Done.'
         
     def freeList(self): 
 	   	glDeleteLists(1,self.list)	
@@ -99,7 +99,7 @@ class OBJMesh:
         self.openObjFile(fname)
 
     def openObjFile(self,fname):
-        print 'MESH: Reading OBJ file...'
+#        print 'MESH: Reading OBJ file...'
         f = open(fname,'rt')
         lines = f.readlines()
         f.close()
@@ -141,7 +141,7 @@ class OBJMesh:
                     norms.append(n)	
                     self.faces.append( [verts,texcoords,norms] )
                     self.numFaces +=1
-        print 'done.'
-        print 'MESH: Loaded', len(self.vertArray), 'vertices,',len(self.textArray), 'texture coordinates and',len(self.normArray),'normals.'
-        print 'Mesh has' , self.numFaces , 'faces.'
+#        print 'done.'
+#        print 'MESH: Loaded', len(self.vertArray), 'vertices,',len(self.textArray), 'texture coordinates and',len(self.normArray),'normals.'
+#        print 'Mesh has' , self.numFaces , 'faces.'
 		

@@ -79,7 +79,7 @@ class Gameplay(Interface):
     def fromHardcore (self):
         self.hardcore = False
         self.tunnel.vel = 55
-        self.scorePerSecond/=3
+        self.scorePerSecond=10
         
     def idle(self):
         '''

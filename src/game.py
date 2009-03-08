@@ -182,7 +182,7 @@ class Game(Gameplay):
         glPopMatrix()
 
         glutSwapBuffers()
-        print 'disp'
+
         
     def hardcoreKey (self, key, x, y):
         if ord(key) == 13:
