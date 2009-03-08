@@ -18,8 +18,12 @@ import os
 import time
 
 #TODO: Only if in windows:
-sys.path.insert(0, os.path.join(sys.prefix, "pyopengl-3.0.0b2-py2.5.egg"))
-sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8-py2.5.egg"))
+sys.path.insert(0, os.path.join(sys.prefix, "PyOpenGL-3.0.0c1-py2.6-win32.egg"))
+sys.path.insert(0, os.path.join(sys.prefix, "lib"))
+
+
+#sys.path.insert(0, os.path.join(sys.prefix, "setuptools-0.6c8-py2.5.egg"))
+
 
 import game
 import menu

@@ -1,2 +1,8 @@
 Copy pyopengl and setuptools eggs from the Python site-packages to the distribution directory.
 Modify the names in w32setup.py and main.py if versions differ
+
+
+Notes from first beta:
+============================================================
+py2exe worked after disabling bundling on w32setup.py.
+I later removed *.pyd and then re-added _ctypes.pyd.
