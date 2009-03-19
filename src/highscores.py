@@ -59,7 +59,7 @@ def add (hs,new):
     return sorted(hs+[new],cmp)
 
 def isCandidate (highscores,score):
-    if len(highscores) <= 10 or score > highscores[0].score:
+    if len(highscores) < 10 or score > highscores[0].score:
         return True
     return False
 

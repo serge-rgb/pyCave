@@ -107,6 +107,7 @@ class Game(Gameplay):
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_LINE_SMOOTH)
         self.ship.draw()
+        
         # Translucent textured stuff===
         
         # Translucent textured non-shadow-casters==
@@ -148,6 +149,7 @@ class Game(Gameplay):
             self.render()
 
     def renderScore (self):
+        
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
         glMatrixMode(GL_PROJECTION)
@@ -165,7 +167,6 @@ class Game(Gameplay):
             glutils.drawString("HARDCORE MODE")
             glPopMatrix()
 
-    
     def displayHardcoreInterlude (self):
         glClearColor(1,1,1,1)
         glClear(GL_COLOR_BUFFER_BIT)
@@ -193,13 +194,10 @@ class Game(Gameplay):
         """Draw a little interlude"""
         if not hasattr(self,"interstart"):
             self.interstart = time.time()
-            print 'interlude'
             glutDisplayFunc(self.displayHardcoreInterlude)
             glutIdleFunc(glutPostRedisplay)
             glutKeyboardFunc(self.hardcoreKey)
 
-        print time.time() - self.interstart
-        
     def render(self):    
         if self.enable_shadows:
             glBindTexture(GL_TEXTURE_2D,self.light.shadowMap.dtexture)

@@ -39,10 +39,21 @@ class Menu(Interface):
 
         glutMainLoop()
 
-    def menuControl ( self):
+    def showMenu ( self):
         self.keyboard = self.menuKeyboard
         self.display = self.displayMenu
         self.getGlutControl()
+
+    def showHighscores (self):
+        """"""            
+        self.display = self.hsDisplay
+        self.keyboard = self.hsKeyboard
+        self.getGlutControl()
+        
+    def showAskName (self):
+        self.display=self.askNameDisplay
+        self.keyboard = self.askNameKeyboard
+        
 
     def loadingScreen (self):
         self.clearGL()
@@ -59,9 +70,8 @@ class Menu(Interface):
         '''
         if died:
             if highscores.checkNewScore(score):
-                self.display = self.askNameDisplay
                 self.score = score
-                self.keyboard = self.askNameKeyboard
+                self.showAskName()
         else:
             pass #User quit the game. No highscore submission.
 
@@ -113,7 +123,6 @@ class Menu(Interface):
         glutSwapBuffers()
 
     def askNameDisplay (self):
-        """"""
         self.clearGL()
         glPushMatrix() 
         glTranslatef(-1,0,0)
@@ -152,13 +161,7 @@ class Menu(Interface):
         
     def hsKeyboard(self,key,x,y):
         if ord(key)==0x1b or ord(key)==13:
-            self.menuControl()
-        
-    def showHighscores (self):
-        """"""            
-        self.display = self.hsDisplay
-        self.keyboard = self.hsKeyboard
-        self.getGlutControl()
+            self.showMenu()
         
     def menuKeyboard(self,key,x,y):        
         Interface.keyboard(self, key, x, y)
@@ -171,14 +174,15 @@ class Menu(Interface):
             
     def askNameKeyboard (self, key, x, y):
         if ord(key) == 13: #Enter
-            highscores.maybeStore(self.playerName,self.score)
-            self.menuControl() 
+            if self.playerName!="":
+                highscores.maybeStore(self.playerName,self.score)
+            self.showHighscores() 
             return
         if ord(key) == 8: #delete key
             self.playerName = self.playerName[0:-1]
             return
         if ord(key) == 0x1b: #exit
-            self.menuControl()
+            self.showHighscores()
            
         self.playerName+=key
         
