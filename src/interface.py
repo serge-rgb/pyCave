@@ -41,7 +41,7 @@ def initGraphics():
     glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
     glutInitWindowSize (win.w,win.h)
     glutInitWindowPosition (win.pos[0],win.pos[1])
-    glClearStencil(0x1) 
+    # glClearStencil(0x1) FUCKING BUG IN MAC OS\n
     glutCreateWindow(win.title)
     glEnable(GL_POLYGON_SMOOTH)
     glEnable(GL_TEXTURE_2D)

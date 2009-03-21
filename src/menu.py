@@ -2,6 +2,9 @@ import sys
 from game import *
 from tga import *
 import highscores
+
+from OpenGL.GL.ARB.multitexture import *
+
 class Menu(Interface):
     '''
     @requires: Game
@@ -86,8 +89,7 @@ class Menu(Interface):
     #==========================
     #TODO: Display options!
     def clearGL (self):
-        glClearColor(1,1,1,1)
-        
+        glClearColor(1,1,1,1)        
         glClear(GL_COLOR_BUFFER_BIT)
         glClear(GL_DEPTH_BUFFER_BIT)
 
@@ -105,16 +107,16 @@ class Menu(Interface):
         glBindTexture(GL_TEXTURE_2D,self.logo.name)
 
         glBegin(GL_QUADS)
-        glMultiTexCoord2f(GL_TEXTURE1,1,1)
+        glMultiTexCoord2fARB(GL_TEXTURE1,1,1)
         glVertex3f(1,1,0)
         
-        glMultiTexCoord2f(GL_TEXTURE1,1,0)
+        glMultiTexCoord2fARB(GL_TEXTURE1,1,0)
         glVertex3f(1,-1,0)
 
-        glMultiTexCoord2f(GL_TEXTURE1,0,0)
+        glMultiTexCoord2fARB(GL_TEXTURE1,0,0)
         glVertex3f(-1,-1,0)
 
-        glMultiTexCoord2f(GL_TEXTURE1,0,1)
+        glMultiTexCoord2fARB(GL_TEXTURE1,0,1)
         glVertex3f(-1,1,0)
 
         glEnd()
