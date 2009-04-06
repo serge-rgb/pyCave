@@ -19,6 +19,7 @@ This is a mostly functional module, all the state is kept in the file.
 '''
 
 import pickle
+import interface as intf
 
 class Highscore (object):
     def __init__ (self,name,score):
@@ -38,7 +39,7 @@ def load ():
         Highscore('Rodrigo',59),
         Highscore('Daniel',823),
         Highscore('Matias',1234),
-        Highscore('Sergio',1700)
+        Highscore('Sergio',2500)
         ]
     try:
         hsfile = open("media/hs.dat",'r')
@@ -49,15 +50,6 @@ def load ():
         hsfile.close()
         return highscores
     
-#print [str(a) for a in highscores]
-          
-def add (hs,new):
-    def cmp (hs1, hs2):
-        return int(hs1.score - hs2.score)
-    if len(hs+[new])>10:
-       del hs[0]
-    return sorted(hs+[new],cmp)
-
 def isCandidate (highscores,score):
     if len(highscores) < 10 or score > highscores[0].score:
         return True
@@ -67,6 +59,14 @@ def checkNewScore(score):
     """Do we add this score to our highscores?"""
     hs = load()
     return isCandidate(hs,score)
+
+def add (hs,new):
+    def cmp (hs1, hs2):
+        return int(hs1.score - hs2.score)
+    if len(hs+[new])>10:
+       del hs[0]
+    return sorted(hs+[new],cmp)
+
 
 def maybeAdd (highscores,name, score):
     hs = Highscore(name,score)
@@ -80,6 +80,8 @@ def store (hs):
     hsfile.close()
     
 def maybeStore (name,score):
+    if intf.pyCaveOptions['debug']:
+        print "Maybe storing: ",name,score
     hscores = maybeAdd(load(),name,score)
     store(hscores)
     return hscores

@@ -1,157 +1,133 @@
-import sys
-from game import *
-from tga import *
+from renderer import Renderer
+from interface import *
+from tga import TgaTexture
 import highscores
+import glutils
+import time
+import music
 
-from OpenGL.GL.ARB.multitexture import *
-
-class Menu(Interface):
+def displayFullWindowTexture(texture):
     '''
-    @requires: Game
+    texture is a TgaTexture with a gl texture
+    associated. (i.e. texture.name is a GLInt texture name)
+    Will fill the screen with the texture
     '''
-    def __init__(self):
-        '''
-        We allocate resources for a new game. 
-        However, we want to mantain control of the rendering
-        context so we can display our menu.
-        Eventually, we give control to Game to start playing.
-        '''
-        self.startGame = False
+    
+    glutils.clearGL()
+
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+
+    glDisable(GL_LIGHTING)
+    glEnable(GL_TEXTURE_2D)
+    glActiveTexture(GL_TEXTURE1)
+    glBindTexture(GL_TEXTURE_2D,texture.name)
+
+    glBegin(GL_QUADS)
+    glMultiTexCoord2f(GL_TEXTURE1,1,1)
+    glVertex3f(1,1,0)
+
+    glMultiTexCoord2f(GL_TEXTURE1,1,0)
+    glVertex3f(1,-1,0)
+
+    glMultiTexCoord2f(GL_TEXTURE1,0,0)
+    glVertex3f(-1,-1,0)
+
+    glMultiTexCoord2f(GL_TEXTURE1,0,1)
+    glVertex3f(-1,1,0)
+
+    glEnd()
+
+    glEnable(GL_LIGHTING)
+    glEnable(GL_TEXTURE_2D)
+    glutSwapBuffers()
+        #menu.game.getControl()
+
+def checkButtons(buttons,coordx,coordy):
+    '''
+    Recieves a list of buttons.
+    A button is a tuple containing:
+    0: point (x,y), the up-left corner.,
+    1: _x, the right-most x value 
+    2:  _y, the lowest y value.
+    3: a function to execute when clicked
+    '''
+    #problem: original button coordinates were thought
+    #for 1024x540 window resolution.
+    #Everything is screwed when window is maximized
+    #quick-fix: convert any coordinate to a 1024x540
+    #base
+    ratiox = float(1024)/context.w
+    ratioy = float(540)/context.h
+    coordx*=ratiox
+    coordy*=ratioy
+    for b in buttons:
+        (x,y) = b[0]
+        _x = b[1]
+        _y = b[2]
+        func = b[3]
+        if x<=coordx<=_x and y<=coordy<=_y:
+            func()
+
+class LoadingScreen (Frame):
+    def __init__ (self,menu):
+        self.menu = menu
+        self.getControl ( )
         
-        #=======
-        self.count = 0
-        self.getGlutControl()  #Snatch control
-        self.logo = TgaTexture("media/pycavelogo2.tga")
-        self.logo.newGLTexture()
-
-        self.playerName = ""
-
-        #Allocate resources
-        #--- we do it in a temporary display func so that we can
-        #--- show a load screen.
-        self.display = self.displayMenu
-        self.keyboard = self.menuKeyboard
-        def tmp_display ():
-            self.loadingScreen()
-            self.game = Game(self)
-            self.getGlutControl()
-            glutDisplayFunc(self.display)
-        glutDisplayFunc(tmp_display)
-        music.new_music("media/pycave.mp3")
-        music.play()
-
-        glutMainLoop()
-
-    def showMenu ( self):
-        self.keyboard = self.menuKeyboard
-        self.display = self.displayMenu
-        self.getGlutControl()
-
-    def showHighscores (self):
-        """"""            
-        self.display = self.hsDisplay
-        self.keyboard = self.hsKeyboard
-        self.getGlutControl()
-        
-    def showAskName (self):
-        self.display=self.askNameDisplay
-        self.keyboard = self.askNameKeyboard
-        
-
-    def loadingScreen (self):
-        self.clearGL()
-        glPushMatrix()
-        glTranslatef(-1,0,0)
-        glScalef(0.0006,0.0006,0)
+    def display(self):
+        glutils.clearGL()
         glutils.drawString("Loading...")
-        glPopMatrix()
         glutSwapBuffers()
         
-    def gameEnded(self,score,died):
-        '''
-        @param ended: True: You died, False: You quit.
-        '''
-        if died:
-            if highscores.checkNewScore(score):
-                self.score = score
-                self.showAskName()
-        else:
-            pass #User quit the game. No highscore submission.
+    def idle (self):
+        'Idle, make the menu load the game'
+        self.menu.loadGame ()
+        self.menu.getControl()
 
-        self.count +=1
+class HelpScreen(Frame):
+    def __init__(self,parent):
+        self.parent = parent
+        self.texture = TgaTexture("media/pyCaveHelp.tga")
+        self.texture.newGLTexture()
+        self.buttonList = [
+            ((320,430),         #Exit to menu
+             694,
+             470,
+             self.parent.getControl)]
         
-    def clean(self):
-        print 'You played', self.count, 'times'
-        sys.exit()
+    def display(self):
+        displayFullWindowTexture(self.texture)        
         
-    #===========================
-    # Glut callbacks
-    #==========================
-    #TODO: Display options!
-    def clearGL (self):
-        glClearColor(1,1,1,1)        
-        glClear(GL_COLOR_BUFFER_BIT)
-        glClear(GL_DEPTH_BUFFER_BIT)
+    def keyboard(self,key,x,y):
+        if ord(key) == 27: #Escape
+            
+            self.parent.getControl()
+                
+    def mouse(self,button,st,x,y):
+        if st == GLUT_UP:
+            checkButtons(self.buttonList,x,y)
 
-    def displayMenu(self):
-        self.clearGL()
+    def idle(self):
+        glutPostRedisplay()
+
+class HighScores(Frame):
+    def __init__(self,parent,):
+        self.parent = parent
+                
+    def display(self):
+        glutils.clearGL()
         
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
-        glMatrixMode(GL_PROJECTION)
-        glLoadIdentity()
-
-        glDisable(GL_LIGHTING)
-        glEnable(GL_TEXTURE_2D)
-        glActiveTexture(GL_TEXTURE1)
-        glBindTexture(GL_TEXTURE_2D,self.logo.name)
-
-        glBegin(GL_QUADS)
-        glMultiTexCoord2fARB(GL_TEXTURE1,1,1)
-        glVertex3f(1,1,0)
-        
-        glMultiTexCoord2fARB(GL_TEXTURE1,1,0)
-        glVertex3f(1,-1,0)
-
-        glMultiTexCoord2fARB(GL_TEXTURE1,0,0)
-        glVertex3f(-1,-1,0)
-
-        glMultiTexCoord2fARB(GL_TEXTURE1,0,1)
-        glVertex3f(-1,1,0)
-
-        glEnd()
-
-        glEnable(GL_LIGHTING)
+        glutils.drawString("Highscores:  (Press Esc to continue)",
+                           translate=(0,0.8))
         glutSwapBuffers()
-
-    def askNameDisplay (self):
-        self.clearGL()
-        glPushMatrix() 
-        glTranslatef(-1,0,0)
-        glScalef(0.0006,0.0006,0)
-        glutils.drawString("Please insert your name (or press Esc):")
-        glPopMatrix()
-        glPushMatrix() 
-        glTranslatef(-1,-0.2,0)
-        glScalef(0.0006,0.0006,0)
-        glutils.drawString(self.playerName)
-        glPopMatrix()
-        glutSwapBuffers()
-        
-#============Highscore displaying            
-    def hsDisplay(self):
-        self.clearGL()
-        glPushMatrix() 
-        glTranslatef(-1,0.8,0)
-        glScalef(0.0006,0.0006,0)
-        glutils.drawString("Highscores:  (Press Enter/Esc to continue)")
-        glPopMatrix()
         
         def showElem (i,offset,elem):
             glPushMatrix() 
-            glTranslatef(-0.6,offset,0)
-            glScalef(0.0004,0.0004,0)
-            glutils.drawString(str(i) + '- ' + elem.name + ":   " + str(int(elem.score)))
+            glutils.drawString(str(i) + '- ' + elem.name + ":   " + str(int(elem.score)),
+                               translate=(0.4,offset),
+                               scale=0.8)
             glPopMatrix()
         offset = 0.6
         i = 1
@@ -161,44 +137,145 @@ class Menu(Interface):
             i+=1
         glutSwapBuffers()
         
-    def hsKeyboard(self,key,x,y):
-        if ord(key)==0x1b or ord(key)==13:
-            self.showMenu()
+    def keyboard(self,key,x,y):
+        if ord(key) == 27:
+            self.parent.getControl()
+
+    def idle(self):
+        pass
+    #glutPostRedisplay()
+     #   time.sleep(0.1)
+
+class AskName(Frame):
+    def __init__(self,parent,score=0):
+        self.playerName = ''
+        self.score = score
+        self.parent = parent
         
-    def menuKeyboard(self,key,x,y):        
-        Interface.keyboard(self, key, x, y)
-        key = key.lower()
-        if key == 'h':
-           self.showHighscores()
-           
-        if key == 's' or ord(key) == 13:
-            self.startGame = True
-            
-    def askNameKeyboard (self, key, x, y):
+        self.hsFrame = HighScores(self.parent)
+        hs = highscores.load()
+        
+    def askOrShowHighscores(self,score):
+        self.score = score
+        hs = highscores.load()
+        iscandidate = highscores.isCandidate(hs,score)
+        if iscandidate:
+            self.getControl()
+        else:
+            self.hsFrame.getControl()
+        
+    def display (self):
+        
+        glutils.clearGL()
+        glutils.drawString('Congratulations! You made top 10.',translate=(0,0.2))
+       
+        glutils.drawString("Please insert your name (or press Esc):")
+        
+        glutils.drawString(self.playerName,translate=(0,-0.2))
+        glutSwapBuffers()
+        
+    def exitToHighscores(self):
+        self.hsFrame.getControl()
+        
+    def keyboard (self, key, x, y):
         if ord(key) == 13: #Enter
             if self.playerName!="":
                 highscores.maybeStore(self.playerName,self.score)
-            self.showHighscores() 
-            return
-        if ord(key) == 8: #delete key
+            self.exitToHighscores()
+                
+        if ord(key) == 127: #delete key (8 in linux)
             self.playerName = self.playerName[0:-1]
             return
         if ord(key) == 0x1b: #exit
-            self.showHighscores()
-           
+            self.exitToHighscores()
         self.playerName+=key
-        
     def idle(self):
-        if self.startGame:        
-            self.startGame = False    
-            self.game.getGlutControl()
-            self.game.start()
-            music.stop()
-        else:
-            music.play()
-            time.sleep(0.02)
-            pass
         glutPostRedisplay()
+        
+
+muted = True
+
+class Menu(Frame):
+    """
+    DOC
+    """
+    def __init__(self):
+        self.game = None #
+        #Make the loading screen call loadGame for us
+        loadscreen = LoadingScreen (self)
+        self.logo = TgaTexture("media/pyCaveMenu.tga")
+        self.logo.newGLTexture()
+
+        music.new_music("media/pycave.mp3")
+        music.play()
+
+        #MENU ITEMS------------------------------
+        self.helpMenu= HelpScreen(self)
+        self.hscores = HighScores(self)
+        self.asker = AskName(self)
+        
+        self.buttonList = [
+            ((133,166), #Start
+             362,
+             201,self.startGame),
+            ((129, 239), #Help
+             201,
+             279,self.helpMenu.getControl),
+            ((128, 321), #Mute
+             316,
+             353,self.toggleMute),
+            ((129, 395), #Exit
+             199,
+             429,exit),
+            ((129,470),#highscores
+             293,
+             505,self.hscores.getControl)
+            ]
+        
+    def loadGame (self):
+        self.game = Renderer(self)
+
+    def startGame(self):
+        music.stop()
+        self.game.gameplay.clean()
+        self.game.gameplay.start()
+        self.game.getControl()
+        
+        
+    def toggleMute(self):
+        music.mute()
+        
+    def display(self):
+        displayFullWindowTexture(self.logo)
+        glutSwapBuffers()
+
+    def keyboard(self,key,x,y):
+        if ord(key) == 27: #esc
+            if self.game.gameplay.playing:
+                if self.game.gameplay.paused:
+                    self.game.gameplay.togglePause()
+                music.stop()
+                self.game.getControl()
+            else: #Not playing and pressed esc
+                exit()
+            
+                
+    def mouse(self,button,st,x,y):
+        if st == GLUT_UP:
+            checkButtons(self.buttonList,x,y)
+            print x,y
+        if pyCaveOptions['debug']:
+            pass
+        
+    def getControl(self):
+        Frame.getControl(self)
+        music.play()
+    def idle(self):
+        glutPostRedisplay()
+                
+        
+
+
+        
     
-if __name__ == '__main__':
-    from main import *
+

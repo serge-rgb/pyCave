@@ -17,8 +17,7 @@
 
 import math
 import random
-from OpenGL.GL import *
-from OpenGL.GLUT import *
+import interface as intf
 
 #Default vertices per ring
 vertNum = 35
@@ -38,12 +37,12 @@ class Obstacle:
 
 
     def draw(self):
-        glPushMatrix()
-        glTranslatef(0,self.height,self.parent.pos[2] - self.z/2)
-        glScalef(self.x,self.y,self.z)
-        #glutWireCube(1)
-        glutSolidCube(1)
-        glPopMatrix()
+        intf.glPushMatrix()
+        intf.glTranslatef(0,self.height,self.parent.pos[2] - self.z/2)
+        intf.glScalef(self.x,self.y,self.z)
+        #intf.glutWireCube(1)
+        intf.glutSolidCube(1)
+        intf.glPopMatrix()
 
 class Ring:
     '''
@@ -160,22 +159,22 @@ class Tunnel:
         
     
     def draw(self):
-        glMaterialfv(GL_FRONT,GL_DIFFUSE,(.9,.98,1,1))
-        glMaterialfv(GL_BACK,GL_DIFFUSE,(0,0,0,1))
+        intf.glMaterialfv(intf.GL_FRONT,intf.GL_DIFFUSE,(.9,.98,1,1))
+        intf.glMaterialfv(intf.GL_BACK,intf.GL_DIFFUSE,(0,0,0,1))
         
-        glEnable(GL_NORMALIZE) #TODO: This is slow, fix...
-        glPushMatrix()
-        glTranslatef(0,0,self.trans)
-        glCallList(self.list)
-        glPopMatrix()
-        glDisable(GL_NORMALIZE)
-        glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,(1,1,1,1))
+        intf.glEnable(intf.GL_NORMALIZE) #TODO: This is slow, fix...
+        intf.glPushMatrix()
+        intf.glTranslatef(0,0,self.trans)
+        intf.glCallList(self.list)
+        intf.glPopMatrix()
+        intf.glDisable(intf.GL_NORMALIZE)
+        intf.glMaterialfv(intf.GL_FRONT_AND_BACK,intf.GL_DIFFUSE,(1,1,1,1))
 
     def drawObstacles(self):
-        glPushMatrix()
-        glTranslatef(0,0,self.trans)
-        glCallList(self.objlist)
-        glPopMatrix() 
+        intf.glPushMatrix()
+        intf.glTranslatef(0,0,self.trans)
+        intf.glCallList(self.objlist)
+        intf.glPopMatrix() 
 
     def createList(self):
     	'''
@@ -183,9 +182,9 @@ class Tunnel:
     	it more efficient?
     	'''
 #        print 'TUNNEL: Creating display list...'
-        self.list = glGenLists(1)
-        glNewList(self.list,GL_COMPILE)
-        glBegin(GL_QUADS)
+        self.list = intf.glGenLists(1)
+        intf.glNewList(self.list,intf.GL_COMPILE)
+        intf.glBegin(intf.GL_QUADS)
         for i in xrange(len(self.rings) - 1):
             for j in xrange(vertNum):
                 r1 = self.rings[i]
@@ -209,28 +208,28 @@ class Tunnel:
                 n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
 
                 #SLOW: This func. calls are the bottleneck:
-                glNormal3fv(n)
-                glVertex3fv(x)
-                glVertex3fv(y)
-                glVertex3fv(z)
-                glVertex3fv(w)
-        glEnd()
+                intf.glNormal3fv(n)
+                intf.glVertex3fv(x)
+                intf.glVertex3fv(y)
+                intf.glVertex3fv(z)
+                intf.glVertex3fv(w)
+        intf.glEnd()
 
-        glEndList()
+        intf.glEndList()
 #        print 'Done.'
 
     def createObstacleList(self):
-        self.objlist = glGenLists(1)
-        glNewList(self.objlist,GL_COMPILE)
+        self.objlist = intf.glGenLists(1)
+        intf.glNewList(self.objlist,intf.GL_COMPILE)
 
         for ring in self.rings:
             if hasattr(ring,'obstacle'):
                 ring.obstacle.draw()
-        glEndList()
+        intf.glEndList()
 
     def clean(self):
-        glDeleteLists(1,self.list)
-        glDeleteLists(1,self.objlist)
+        intf.glDeleteLists(1,self.list)
+        intf.glDeleteLists(1,self.objlist)
         
     def clear(self):
         '''

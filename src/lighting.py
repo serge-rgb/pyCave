@@ -13,14 +13,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from OpenGL.GL import *
-from OpenGL.GL.ARB.depth_texture import *
-from OpenGL.GL.ARB.shadow_ambient import *
-from OpenGL.GL.EXT.framebuffer_object import *
-from OpenGL.GLU import *
-from OpenGL.GLUT import *
-#import c_module
+#We are using so many GL calls it makes sense to import to global namespace
+from interface import *
 
 #WARNING -- To those who dare to change the parameters to the shadow map
 # and to the position of the light variable on the Game class:
@@ -28,13 +22,13 @@ from OpenGL.GLUT import *
 # It's almost impossible to get a better looking configuration for
 # their parameters.
 
-
 class Light:
     '''
-    example: light(engine,(1,1,1,1) ,(10,0,1) ,GL_LIGHT0, True)
+    example: light((1,1,1,1) ,(10,0,1) ,GL_LIGHT0, True)
     '''
-    def __init__(self, engine, color, pos, num, casts_shadows):
+    def __init__(self, engine, color, pos,normal, num, casts_shadows):
         self.pos = pos
+        self.normal = normal
         self.look = (0,0,0)
         
         self.color = color
@@ -46,8 +40,10 @@ class Light:
         glLightfv(self.num, GL_SPECULAR, color)
 #        glLightf (self.num, GL_SPOT_CUTOFF, 40.0)
         
-        if self.casts_shadows:
-            self.shadowMap = ShadowMap(engine,self)
+        if self.casts_shadows and pyCaveOptions ['shadows']:
+            self.shadowMap = ShadowMap(self)
+        elif pyCaveOptions ['debug']==True:
+            print self,": I dont have a texture map"
     
     def move(self, sum):
         self.pos = (self.pos[0] + sum[0] , self.pos[1]+sum[1], self.pos[2] + sum[2])
@@ -59,34 +55,43 @@ class Light:
     
     def off(self):
         glDisable(self.num)
-
-
-
-near = 50
-far = 350
-class ShadowMap:
-    def __init__(self,engine,light):
-        self.fov = 60
-        self.engine = engine
-        self.size = 512
-        self.name = glGenTextures(1)
-        self.dtexture = glGenTextures(1)
-        self.light = light
-        self.disabled = False
-        self.fbo = 0
-
-        hasDepthTex = glInitDepthTextureARB()
-        hasFbo = glInitFramebufferObjectEXT()
-        hasAmbient = glInitShadowAmbientARB()
-
-        if not hasFbo or not hasDepthTex:
-            print 'No framebuffer object Extension!!!'
-            self.disabled = True
+    def configureShadowMap(self, fov,near,far):
+        """
+        Set values for the shadow map
+        
+        Arguments:
+        - `fov`: field of view
+        - `near`,`far`: ..
+        """
+        if not self.casts_shadows or not pyCaveOptions ['shadows']:
             return
-
+        self.shadowMap.near = near
+        self.shadowMap.far = far
+        self.shadowMap.fov = fov
+        
+    def lookAt (self,x,y,z):
+        self.look =(x,y,z)
+    
+class ShadowMap:
+    def __init__(self,light):
+        if pyCaveOptions ['debug']:
+            print "SHADOW MAP", self
+            
+        self.near = 0.1
+        self.far = 10
+        self.fov = 60
+        self.size = 512
+        self.dtexture = glGenTextures(1)
+        
+        self.light = light
+        self.fbo = 0
+        glActiveTexture (GL_TEXTURE0)
+        glEnable (GL_TEXTURE_2D)
         glBindTexture(GL_TEXTURE_2D,self.dtexture)
-
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT , self.size, self.size, 0,GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, None)
+#        glTexImage2D (GL_TEXTURE_2D,0,GL_RGB,
+#                      self.size,self.size,0,GL_RGB,GL_UNSIGNED_BYTE,None)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT ,
+                     self.size, self.size, 0,GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, None)
 
         texfilter = GL_LINEAR
 #        texfilter = GL_NEAREST
@@ -97,32 +102,36 @@ class ShadowMap:
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_LEQUAL)
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_COMPARE_R_TO_TEXTURE)
 
-        self.fbo = glGenFramebuffersEXT(1)
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,self.fbo)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,#GL_COLOR_ATTACHMENT0_EXT,
+        self.fbo = ext.fb_obj.glGenFramebuffersEXT(1)
+        ext.fb_obj.glBindFramebufferEXT(ext.fb_obj.GL_FRAMEBUFFER_EXT,self.fbo)
+        ext.fb_obj.glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,#GL_COLOR_ATTACHMENT0_EXT,
                                   GL_TEXTURE_2D,self.dtexture,0)
-        glDrawBuffer(GL_NONE);          
+        glDrawBuffer(GL_NONE)
+        glReadBuffer(GL_NONE)
 
-        enum = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
+        enum = ext.fb_obj.glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT)
 
-        if enum == GL_FRAMEBUFFER_COMPLETE_EXT:
-            pass
-        if enum == GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            print 'Dimension error'
-        if enum == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            print 'Attachment error'
-        if enum == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            print 'draw error'
-        
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
+        if enum == ext.fb_obj.GL_FRAMEBUFFER_COMPLETE_EXT:
+            if pyCaveOptions ['debug']:
+                print 'FRAMEBUFFER is COMPLETE'
+        elif pyCaveOptions ['debug']:
+            print "Framebuffer INCOMPLETE:"
+            if enum == ext.fb_obj.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+                print 'Dimension error'
+            if enum == ext.fb_obj.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+                print 'Attachment error'
+            if enum == ext.fb_obj.GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+                print "incomplete draw buffer"
+            if enum == ext.fb_obj.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+                print "incomplete read buffer"
+                
+            if pyCaveOptions ['debug']:
+                print 'FRAMEBUFFER_STATUS', enum
+                exit ()
+                
+        ext.fb_obj.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
           
-#        print 'SHADOW MAP: Created Shadow Map with name', self.dtexture
-        
     def transposeMatrix(self,mat):
-#        res = numpy.array([[0,0,0,0],
-#                           [0,0,0,0],
-#                           [0,0,0,0],
-#                           [0,0,0,0]],dtype=float)
         res = [[0,0,0,0],
                [0,0,0,0],
                [0,0,0,0],
@@ -141,23 +150,32 @@ class ShadowMap:
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_FUNC,GL_GREATER)
 
     def resize(self):
-        self.size = self.engine.win.h
+#        self.size = self.engine.win.h
+        self.size = context.h
+        
         glBindTexture(GL_TEXTURE_2D,self.dtexture)
         glCopyTexImage2D(GL_TEXTURE_2D,GLint(0),GL_DEPTH_COMPONENT,GLint(0),GLint(0),self.size,self.size,GLint(0))
 
     def perspTransf (self):
-        gluPerspective(self.fov,1,near,far)
+        gluPerspective(self.fov,1,self.near,self.far)
 
         
     def lookAt(self):
-         gluLookAt(self.pos[0],self.pos[1],self.pos[2],
-                  self.look[0],self.look[1],self.look[2],
-                  0,1,0)
+         gluLookAt(self.light.pos[0],self.light.pos[1],self.light.pos[2],
+                   self.light.look[0],self.light.look[1],self.light.look[2],
+                   self.light.normal[0],self.light.normal[1],self.light.normal[2])
         
-    def genMap(self):    
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,self.fbo)
+    def genMap(self, drawCasters):
+        """
+        Generates shadow map.
+        
+        Arguments:
+        - `drawCasters`: function that renders shadow casters
+        """
+        ext.fb_obj.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,self.fbo)
 
-              
+        glBindTexture(GL_TEXTURE_2D,self.dtexture)
+        
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         self.perspTransf()
@@ -165,19 +183,34 @@ class ShadowMap:
         
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
-        self.pos = self.light.pos
-        self.look = self.light.look
-        self.lookAt()
-        glClear(GL_DEPTH_BUFFER_BIT)
-        glEnable(GL_POLYGON_OFFSET_FILL)
-        glPolygonOffset(-10,1)
-        self.engine.drawGeometry(1)
-        glDisable(GL_POLYGON_OFFSET_FILL)
-        glMatrixMode(GL_PROJECTION)
-        glEnable(GL_TEXTURE_2D)
-        glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
 
-    def genMatrix(self):        
+        self.lookAt()
+
+        glClear(GL_DEPTH_BUFFER_BIT )
+        glEnable(GL_POLYGON_OFFSET_FILL)
+        glPolygonOffset(-100,0)
+        
+        drawCasters() 
+
+        glDisable(GL_POLYGON_OFFSET_FILL)
+        
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        
+        ext.fb_obj.glBindFramebufferEXT(ext.fb_obj.GL_FRAMEBUFFER_EXT,0)
+        pass
+                
+
+    def genMatrix(self,gameCamera):
+        """
+        Generates the transformation matrix for
+        See paper:
+        TODO: add paper reference
+        Arguments:
+        - `gameCamera`: Function that basically calls a gluLookAt
+        """
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
         
@@ -186,7 +219,7 @@ class ShadowMap:
         Pmatrix = glGetFloatv(GL_PROJECTION_MATRIX)
         glPopMatrix()
         
-        gluPerspective(self.fov,self.engine.win.aspect,0.1,100)
+        gluPerspective(self.fov,context.aspect(),0.1,100)
         
         glMatrixMode(GL_MODELVIEW)
         glLoadIdentity()
@@ -204,8 +237,9 @@ class ShadowMap:
         glPopMatrix()
         
         #=========Camera
-        self.engine.gameCamera()
-        #=====================      
+        gameCamera ()
+        #=====================
+        glActiveTexture (GL_TEXTURE0)
         glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR)
         glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR)
         glTexGeni(GL_R,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR)
@@ -222,6 +256,13 @@ class ShadowMap:
         glEnable(GL_TEXTURE_GEN_T)
         glEnable(GL_TEXTURE_GEN_R)
         glEnable(GL_TEXTURE_GEN_Q)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+
 
 
 if __name__ == '__main__':

@@ -14,7 +14,7 @@
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
 from tga import *
-from OpenGL.GLUT import*
+import interface as intf
 		
 class Model:
     def __init__(self,fname,texFile):
@@ -23,21 +23,18 @@ class Model:
         self.rotate = (0,0,0)
         self.list = 0
         #self.createDisplayList()
-        
-        
-
         self.texFile = texFile
         if self.texFile != 'none':
                 self.loadTexture(texFile)
+                #TODO: Move this to tga.py
                 del self.texture.texels #We won't be needing this memory
-                
 
 		
     def createDisplayList(self):
 #        print 'MESH: Creating display list...'
-        self.list = glGenLists(1)
-        glNewList(self.list,GL_COMPILE)
-        glBegin(GL_TRIANGLES)       
+        self.list = intf.glGenLists(1)
+        intf.glNewList(self.list,intf.GL_COMPILE)
+        intf.glBegin(intf.GL_TRIANGLES)       
         for face in self.mesh.faces:
             for i in xrange(3):
                 v = face[0][i]
@@ -48,20 +45,20 @@ class Model:
                 t = self.mesh.textArray[t-1]
                 n = self.mesh.normArray[n-1]
 
-                glNormal3fv(n)
-                glTexCoord2fv(t)
-                glMultiTexCoord2fv(GL_TEXTURE1,t)
+                intf.glNormal3fv(n)
+                intf.glTexCoord2fv(t)
+                intf.glMultiTexCoord2fv(intf.GL_TEXTURE1,t)
                 if len(v) == 3: 
                     v.append(1)
                 if len(v) == 4:
                     v[3] = 1
-                glVertex4fv(v)
-        glEnd()
-        glEndList()
+                intf.glVertex4fv(v) #Why the hell did I make it 4f?
+        intf.glEnd()
+        intf.glEndList()
 #        print 'Done.'
         
     def freeList(self): 
-	   	glDeleteLists(1,self.list)	
+	   	intf.glDeleteLists(1,self.list)	
 		
     def loadTexture(self,fname):
         self.texture = TgaTexture(fname)
@@ -72,15 +69,16 @@ class Model:
         Must be drawn whene TEXTURE1 is active
         and TEXTURE_2D is enabled
         '''
-        glBindTexture(GL_TEXTURE_2D,self.texture.name)
-        glPushMatrix()
+        intf.glActiveTexture (intf.GL_TEXTURE1)
+        intf.glBindTexture(intf.GL_TEXTURE_2D,self.texture.name)
+        intf.glPushMatrix()
 
-        glTranslatef(self.pos[0],self.pos[1],self.pos[2])
-        glRotatef(self.rotate[0],1,0,0)
-        glRotatef(self.rotate[2],0,0,1)  
-        glCallList(self.list)
-        #glutSolidSphere(1,10,10)
-        glPopMatrix()
+        intf.glTranslatef(self.pos[0],self.pos[1],self.pos[2])
+        intf.glRotatef(self.rotate[0],1,0,0)
+        intf.glRotatef(self.rotate[2],0,0,1)  
+        intf.glCallList(self.list)
+        #intf.glutSolidSphere(1,10,10)
+        intf.glPopMatrix()
                 
 class OBJMesh:
     '''

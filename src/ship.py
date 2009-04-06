@@ -18,7 +18,6 @@ from model import *
 from sprite import *
 import math
 
-
 smokefname = 'media/smoke.tga' #smoke texture
 
 #====Smoke parameters
@@ -33,7 +32,7 @@ class Ship(Model):
     '''
     Extends Model class to define the ship.
     '''
-    def __init__(self,game):
+    def __init__(self,renderer):
         
         Model.__init__(self,'media/ship.obj','media/ship.tga')
         
@@ -42,7 +41,7 @@ class Ship(Model):
         self.image = spr.image
         
         self.createDisplayList()
-        self.game = game
+        self.renderer = renderer
         
         self.reset()
 
@@ -56,8 +55,8 @@ class Ship(Model):
             
         #Standard acceleration and velocity.
         self.accel = 250  # units / time^2
-        self.vel = 50  # units / time
-        self.pos = (0,10,0)
+        self.vel = 140  # units / time
+        self.pos = (0,-15,0)
         self.oldPos = (10,0)
         #===z Rotation
         self.zSinInterval = 1
@@ -70,28 +69,20 @@ class Ship(Model):
         self.oldYpos = self.pos[1]
         self.smokeIdle(diff) 
         self.fall(diff)
-        daredevil = self.thrustRotation()
+        self.thrustRotation()
         self.zRotation(diff)
-        
-        return daredevil
 
     def thrustRotation(self):
-        daredevil = False
-
         y = self.pos[1]
-        z = -self.game.tunnel.trans
+        z = -self.renderer.gameplay.tunnel.trans
         dot = z - self.oldPos[1]
         norm = math.sqrt( (y-self.oldPos[0])**2 +  dot**2 ) 
         cosang = float(dot)/norm
         ang = (math.acos(cosang)*180)/3.14159265
-        if abs(ang)>45:
-           daredevil=True
-            
         if(y>self.oldPos[0]):
             ang = -ang
         self.rotate = (ang,self.rotate[1],self.rotate[2])
         self.oldPos = (y,z)
-        return daredevil
         
     def zRotation(self,diff):
         self.zSin += self.zSinInterval*diff
@@ -103,7 +94,7 @@ class Ship(Model):
         
     def fall(self,deltatime):
         #Am I pressing space to lift up?
-        thrusting = self.game.keyMap[ord(' ')] == 1
+        thrusting = self.renderer.keyMap[ord(' ')] == 1
         
         deltavel = self.accel * deltatime
         deltadist = self.vel * deltatime

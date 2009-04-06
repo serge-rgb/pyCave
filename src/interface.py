@@ -1,110 +1,220 @@
- #    This file is part of pyCave.
-#
-#    pyCave is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    pyCave is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+interface.py
 
+'Interface'  to GL,GLU and GLUT. Includes abstractions for
+context and frames.
+Frame is a class that can get control of input and display.
+
+
+------------------------------
+Usage
+------------------------------
+from interface import context,Frame
+
+class MyFrame (Frame):
+    display ():
+        ...
+    keyboard ():
+        ...        
+mf = MyFrame()
+mf.getControl()
+
+context.mainLoop()
+
+
+------------------------------
+Multitexturing convention
+------------------------------
+GL_TEXTURE0 is the shadow texture (Implement multiple shadowing?)
+GL_TEXTURE1 is the color texture
+"""
+pyCaveOptions = {
+    'shadows':True,#False,
+    'debug':True,#False
+    'window_size':(1024,540),
+    'show_fps':True,
+    'mortal':True#False
+    }
+
+import extensions as ext
 
 from OpenGL.GL import *
-from OpenGL.GLUT import *
 from OpenGL.GLU import *
-import cProfile
-import music
-import time
-import glutils
+from OpenGL.GLUT import *
 
-class Window:
-    def __init__(self,title): 
-        self.w = 1024
-        self.h = 540
-        self.aspect = float(self.w) / float(self.h)
-        self.pos = (350,100)
-        self.title = title
-        self.identifier = -1
-    
-    def recalcAspect(self):
-        self.aspect = float(self.w) / float(self.h)
+class Frame():
+    """Can get control from GLUT and draw on screen / get keyboard input
+    Override the keyboard(key),mouse(button,state,x,y), idle () and display() functions.
+    Use getControl to do your stuff.
+    """
+    def keyboard(self, key,x,y):
+        """
+        Do something after receiving a key
+        Arguments:   
+        - `key`:
+        """
+        pass
 
-win = Window("pyCave")
-        
-def initGraphics():
-    glutInit([])
-    glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
-    glutInitWindowSize (win.w,win.h)
-    glutInitWindowPosition (win.pos[0],win.pos[1])
-    # glClearStencil(0x1) FUCKING BUG IN MAC OS\n
-    glutCreateWindow(win.title)
-    glEnable(GL_POLYGON_SMOOTH)
-    glEnable(GL_TEXTURE_2D)
-    glEnable(GL_LINE_SMOOTH)
-
-class Interface:
-    '''
-    Interface to GLUT for window management.
-    '''
-    def __init__(self):
-#        self.win = Window()
-        self.win = win
-    
-        glutIgnoreKeyRepeat(1)
-        self.getGlutControl()
-        
-    
-    def getGlutControl(self):
-        glutDisplayFunc(self.display)
-        glutReshapeFunc(self.reshape)
-        glutKeyboardFunc(self.keyboard)
-        glutKeyboardUpFunc(self.keyboardUp)
-        glutIdleFunc(self.idle)
-        
-    def display(self):
-        '''
-        This will be inherited and used by the me and renderer.
-        '''
+    def keyboardUp (self,key,x,y):
         pass
     
-    def reshape(self,w,h):
-        win.w = w
-        win.h = h
-        win.recalcAspect()
-        glViewport(0,0,w,h)
-        glMatrixMode(GL_MODELVIEW)
-        glLoadIdentity()
+    def display(self):
+        '''Draw to screen'''
+        pass
+    
         
-    def keyboard(self,key,x,y):
-        key = key.lower()
-        if key == 'q' or ord(key)==0x1b: #0x1b == exit
-            self.clean()
-        if key == 'm':
-           music.mute()
-            
-        
-    def keyboardUp(self,key,x,y):
+    def mouse(self,button,state,x,y):
+        """handle mouse input"""
+        pass
+
+    def passiveMotion(self,x,y):
+        """
+        Override to provide a callback for mouse movement
+        (with no buttons pressed)
+        """
         pass
     
     def idle(self):
+        """
+        Do stuff!
+        """
+        
         pass
     
-    def passiveMotion(self,x,y):
-        pass
+    def getControl(self):
+        """Be useful"""
+        if pyCaveOptions ['debug']:
+            print self, "Getting GLUT control"
+        self.keyMap = []
+        for i in xrange (0,256):
+            self.keyMap.append (False)
+        
+
+        glutDisplayFunc(self.display)
+        glutKeyboardFunc(self.keyboard)
+        glutKeyboardUpFunc (self.keyboardUp)
+        glutMouseFunc(self.mouse)
+        glutPassiveMotionFunc(self.passiveMotion)
+        glutIdleFunc (self.idle)
+        glutPostRedisplay()
+
+def checkFunctionality():
+    'Redefine functions with GL extensions.'
+    ext.checkExtensions()
+    if not ext.hasExt[ext.fb_obj]:
+        print 'TODO: Disable shadows!!!'
+
+    #Checking for multitexture
+    if not bool (glMultiTexCoord2f):
+        print 'No multitexturing support. Importing extension'
+        if ext.hasExt[ext.multitext]:
+            global glMultiTexCoord2fv,glMultiTexCoord2f,glActiveTexture,GL_TEXTURE0,GL_TEXTURE1
+            glMultiTexCoord2f = ext.multitext.glMultiTexCoord2fARB
+            glMultiTexCoord2fv = ext.multitext.glMultiTexCoord2fvARB
+            glActiveTexture = ext.multitext.glActiveTextureARB
+            GL_TEXTURE0 = ext.multitext.GL_TEXTURE0_ARB
+            GL_TEXTURE1 = ext.multitext.GL_TEXTURE1_ARB
+            print 'Using ARB multitexturing'
+        else:
+            print 'No multitexturing functionality found. Exiting.'
+            exit (-1)
+
+    #Disable shadows if no extensions are available
+    if not ext.hasExt[ext.fb_obj] or not ext.hasExt [ext.depth_texture]:
+        print 'No Framebuffer Objects or Depth Texture extensions found.'
+        print 'Disabling shadows'
+        pyCaveOptions ['shadows']=False
+    elif pyCaveOptions ['shadows']:
+        ext.fb_obj.glInitFramebufferObjectEXT ()
+        
+
+def glSettings():
+    """OpenGL state is configured here. 
+    Every other glEnable called by a function ***MUST*** be
+    followed by a glDisable ***WITHIN THE SAME FUNCTION***
+    """
+
+    glActiveTexture(GL_TEXTURE1)
+    glTexEnvf (GL_TEXTURE_ENV,
+               GL_COMBINE_RGB,
+               GL_MODULATE)
+    glEnable(GL_TEXTURE_2D)
+
+    glActiveTexture(GL_TEXTURE0)
+    glEnable(GL_TEXTURE_2D)
+    
+    glEnable(GL_LIGHTING)
+    
+    'Anti-aliasing'
+    'TODO: hint opengl for AA quality?'    
+    glEnable(GL_POLYGON_SMOOTH)
+    glEnable(GL_LINE_SMOOTH)
+
+    #Alpha blending
+    glEnable(GL_BLEND)
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    
+    #Depth-culling
+    glEnable (GL_DEPTH_TEST)
+    
+    #FOG ================
+    glEnable(GL_FOG)
+    fogColor = (0.3, .3, 0.3)
+    fogMode = GL_EXP2
+    glFogi(GL_FOG_MODE, fogMode)
+    glFogfv(GL_FOG_COLOR, fogColor)
+    glFogf(GL_FOG_DENSITY, 0.004)
+    glFogf(GL_FOG_START, 600.0)
+    glFogf(GL_FOG_END, 1000.0)
+    #=========================
+    pass
+
+
+class _Context():
+    '''Thin abstraction over GLUT.'''
+    def __init__(self, w,h,title):
+        if pyCaveOptions ['debug']:
+            print 'New context object', self
+        print '''
+        \n\n\n------------------------------
+        Pycave\n------------------------------
+        
+        '''
+        self.w = w
+        self.h = h
+        self.title = title
+        glutInit([])
+        glutInitWindowSize (self.w,self.h)
+        glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
+        
+        # glClearStencil(0x1)  This generates a bug in Leopard 10.5!!
+        # glutInitWindowPosition (win.x,win.y) Let the WM handle this
+
+        glutCreateWindow(self.title)
+        glutReshapeFunc(self.reshape)
+        
+        #Invoke the checking of extensions so that we can 
+        #know what functionality to enable.
+
+        checkFunctionality ()        
+        glSettings()
+
+    def aspect(self):
+        """Get the aspect ratio"""
+        return self.w / float(self.h)
+        
+    def reshape(self,w,h):
+        self.w = w
+        self.h = h
+        glViewport(0,0,w,h)
     
     def mainLoop(self):
-        glutMainLoop()
-
-    def clean(self):
-        pass
-        #glutLeaveMainLoop()
-        #import main
-        #main.reboot()
-        
-if __name__ == '__main__':
-    from main import *
+        """This calls the main loop. Never returns.
+        Note: A Frame must request control before this is called.
+        """
+        glutMainLoop()        
+context = _Context(pyCaveOptions ['window_size'] [0],
+                   pyCaveOptions ['window_size'] [1],
+                   "PyCave")

@@ -14,93 +14,115 @@
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from interface import *
+#from interface import *
+import interface as intf
 from ship import *
 from tunnel import *
 import collision
 import time
-
+import highscores
+import glutils
+    
 profiling = False
 
 if profiling:
     import cProfile
-mortal = True#False
 
-class Gameplay(Interface):
+class HardcoreInterlude (intf.Frame):
+    """
+    Frame that waits for a while before loading HARDCORE MODE!
+    """
+    
+    def __init__(self, parent):
+        self.parent = parent
+        self.getControl()
+        self.init = time.time()
+        self.limit = 1.3 #seconds
+        
+    def display(self):
+        glutils.clearGL()
+        glutils.drawString("Entering HARDCORE MODE")
+        intf.glutSwapBuffers()
+        intf.glutPostRedisplay()
+    def idle(self):
+        if time.time() - self.init >= self.limit:
+            self.parent.gameplay.togglePause()
+            self.parent.getControl()
+        
+class Gameplay():
     '''
-    @requires: Interface
     @summary: Manages collisions, the ship, the cave, I/O
     '''
-    def __init__(self):
+    def __init__(self,renderer):
+        self.renderer = renderer
+
+        self.hardcoreLimit = 5500#100
         self.scorePerSecond = 10 #Each second merits 10 score.
-        Interface.__init__(self)
+        #------------------------------
+        # Toggles
+        #------------------------------
         self.hardcore = False
-        self.hardcoreLimit = 5500
-        self.ship = Ship(self)
-                
-        #======================
-        #TUNNEL
+        self.paused = False
+        self.playing = False
+        
+        #TODO: remove the horrible dependency on renderer
+        self.ship = Ship(renderer)
         self.tunnel = Tunnel()
-        #=======================        
-        self.start()
+        
+        self.start(); self.playing=False
         
     def start(self):
-        self.cumTime = 0
         self.score = 0
-        self.died = False 
-        self.time = time.time()
+        self.paused = True
+        self.died = False
+        self.playing = True
+        self.lastTime = time.time()
+        self.elapsedTime = 0
+        self.timePaused = 0
+                
         
-        #Ascii keymap
-        self.keyMap = []
-        for i in xrange(0,256):
-            self.keyMap.append(0)
-            
-    def keyboard(self,key,x,y):
-        Interface.keyboard(self, key, x, y)
-        self.keyMap[ord(key)] = 1
-        
-    def keyboardUp(self,key,x,y):
-        self.keyMap[ord(key)] = 0
-        
-    def manageInput(self):
-        pass
-
-    def hardcoreInterlude (self):
-        """Leave this empty. Implement in Game class"""
-
-
     def toHardcore (self):
         """"""
+        interlude = HardcoreInterlude(self.renderer)
+                
         self.hardcore=True
-        self.hardcoreInterlude()
         self.tunnel.vel = 100
         self.scorePerSecond*=3
+        self.paused=True
 
-    def fromHardcore (self):
+    def notHardcore (self):
         self.hardcore = False
         self.tunnel.vel = 55
         self.scorePerSecond=10
-        
-    def idle(self):
-        '''
-        '''
-        self.manageInput()
-        diff = time.time() - self.time
-            
-        (crashed,plus) = collision.checkTunnel(self.ship,self.tunnel)
 
-        if mortal and crashed:
+    def togglePause(self):
+        if self.paused:
+            self.lastTime = time.time()
+            self.paused=False
+            return
+        self.paused=True
+    
+        
+    def step(self):
+        '''
+        '''
+        if self.paused:
+            self.lastTime = time.time ()
+            return
+        startTime = time.time() 
+
+        diff = time.time() - self.lastTime
+        crashed = collision.checkTunnel(self.ship,self.tunnel)
+        
+        if crashed and intf.pyCaveOptions['mortal']:
             self.end()
             
-        daredevil = self.ship.idle(diff)
+        self.ship.idle(diff)
         self.tunnel.idle(diff)
-        #======Score editing
-        if plus!=0 and daredevil:
-            self.score+=plus
-#            print "DAREDEVIL"
-
+        
         #======Enter hardcore mode when almost at the end.
         if not self.hardcore and self.tunnel.trans < -self.hardcoreLimit:
+            
             self.toHardcore()
             self.tunnel.reset()
             self.ship.reset()
@@ -108,17 +130,21 @@ class Gameplay(Interface):
         self.score+=diff*self.scorePerSecond
         self.fps = 1/diff
         
-        self.cumTime += diff
-        self.time = time.time()
+        self.elapsedTime += diff
+        self.lastTime = time.time()
         
     def end(self):
+        '''
+        Returns True if the player went into the highscore
+        '''
+        self.died=True
+        self.playing = False
         self.ship.die()
-
-        self.died = True
         
+    
     def clean(self):
         #Reset
-        self.fromHardcore()
+        self.notHardcore()
         self.ship.reset()
         self.tunnel.reset()
         

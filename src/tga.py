@@ -18,7 +18,8 @@
 #tga.py, by Sergio González, 2007
 #Class that loads TGA textures and can upload them into OpenGL
 
-from OpenGL.GL import *
+#from OpenGL.GL import *
+import interface as intf
 import struct
 
 #Only loads 24 or 32 bit uncompressed TGA textures
@@ -41,10 +42,10 @@ class TgaTexture:
 		#Let OpenGL do the changing.
 		if self.bpp == 24:
 			self.internFormat = 3
-			self.texFormat = GL_BGR
+			self.texFormat = intf.GL_BGR
 		if self.bpp == 32:
 			self.internFormat = 4
-			self.texFormat = GL_BGRA
+			self.texFormat = intf.GL_BGRA
 		elif self.bpp!=24 and self.bpp!=32:
 			print "Image Format not supported", self.bpp,'@',self.size
 			exit(-1)
@@ -56,20 +57,19 @@ class TgaTexture:
 #		print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
 		
 	def newGLTexture(self):
-		#self.name = name
-		#glPixelStorei(GL_PACK_ALIGNMENT,1)
-		self.name = glGenTextures(1)
-		glBindTexture(GL_TEXTURE_2D,self.name)
+		self.name = intf.glGenTextures(1)
+
+		intf.glActiveTexture (intf.GL_TEXTURE1)
 		
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+		intf.glBindTexture(intf.GL_TEXTURE_2D,self.name)
 		
-		glTexImage2D(GL_TEXTURE_2D, 0,self.internFormat,self.size[0],self.size[1],0,self.texFormat,GL_UNSIGNED_BYTE,self.texels)
+		intf.glTexParameteri(intf.GL_TEXTURE_2D, intf.GL_TEXTURE_WRAP_S, intf.GL_REPEAT)
+		intf.glTexParameteri(intf.GL_TEXTURE_2D, intf.GL_TEXTURE_WRAP_T, intf.GL_REPEAT)
+		intf.glTexParameteri(intf.GL_TEXTURE_2D, intf.GL_TEXTURE_MAG_FILTER, intf.GL_NEAREST)
+		intf.glTexParameteri(intf.GL_TEXTURE_2D, intf.GL_TEXTURE_MIN_FILTER, intf.GL_NEAREST)
+		intf.glTexImage2D(intf.GL_TEXTURE_2D,
+				  0,self.internFormat,
+				  self.size[0],self.size[1],0,
+				  self.texFormat,intf.GL_UNSIGNED_BYTE,self.texels)
+		
 #		print 'TGALOADER: Stored 2D texture in OpenGL with name', self.name
-		
-		
-		
-		
-		

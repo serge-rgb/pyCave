@@ -17,11 +17,7 @@
 from ship import *
 from tunnel import *
 
-lastChecked = None
-
 def checkTunnel(ship,tunnel):
-    global lastChecked
-    
     index = int(abs(tunnel.trans/tunnel.dz))
     ra = tunnel.rings[index-1]  #ring behind the ship
     rb = tunnel.rings[index]#in front of the ship
@@ -31,10 +27,9 @@ def checkTunnel(ship,tunnel):
     upper = ra.rad + ra.pos[1] + ra.upperTan*dist
     lower = -ra.rad + ra.pos[1] + ra.lowerTan*dist
     if ship.pos[1] > upper or ship.pos[1] < lower:
-        return (True,0)
+        return True
     
       #Now we check for an obstacle
-    bonus = 0
     if hasattr(tunnel.rings[index],'obstacle'):
         pos = ship.pos
         obs = tunnel.rings[index].obstacle
@@ -44,14 +39,8 @@ def checkTunnel(ship,tunnel):
         disc = zObs - zShip
         if disc < obs.z: #within z-range
             if abs(obs.height - pos[1]) < y2: #within Y-range
-                return (True,0)
-            
-        if lastChecked!=rb and abs(obs.height - pos[1]) < 20:
-           bonus=100
-           lastChecked=rb
-
-    lastChecked = rb
-    return (False,bonus)
+                return True
+    return False
 
 if __name__ == '__main__':
     from main import *
