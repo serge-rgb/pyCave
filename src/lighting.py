@@ -188,7 +188,7 @@ class ShadowMap:
 
         glClear(GL_DEPTH_BUFFER_BIT )
         glEnable(GL_POLYGON_OFFSET_FILL)
-        glPolygonOffset(-100,0)
+        glPolygonOffset(-1,0)
         
         drawCasters() 
 

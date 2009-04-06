@@ -28,7 +28,7 @@ class Renderer (intf.Frame):
                                      intf.GL_LIGHT0,True)
         #0,5,0   near 0.1 far 5
         self.light.lookAt (0,0,90)
-        self.light.configureShadowMap (fov=60,near=120,far=200)
+        self.light.configureShadowMap (fov=60,near=110,far=200)
         self.light.on()
         
         self.gameplay = gameplay.Gameplay(self)

@@ -64,7 +64,7 @@ class Gameplay():
         self.hardcore = False
         self.paused = False
         self.playing = False
-        
+        self.fps = 0
         #TODO: remove the horrible dependency on renderer
         self.ship = Ship(renderer)
         self.tunnel = Tunnel()

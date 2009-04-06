@@ -31,7 +31,7 @@ GL_TEXTURE0 is the shadow texture (Implement multiple shadowing?)
 GL_TEXTURE1 is the color texture
 """
 pyCaveOptions = {
-    'shadows':False,#True,
+    'shadows':True,#False,
     'debug':True,#False
     'window_size':(1024,540),
     'show_fps':True,
@@ -104,10 +104,10 @@ def checkFunctionality():
     'Redefine functions with GL extensions.'
     try:
         ext.checkExtensions()
-    except:
-        print 'Something horrible has happened. Disabling shadows and hoping for the best..'
-        pyCaveOptions['shadows'] = False
-        return 
+    except AttributeError:
+        print 'Error finding extension names. You probably don \'t have the latest version of pyOpenGL'
+        exit ()
+    
     if not ext.hasExt[ext.fb_obj]:
         print 'TODO: Disable shadows!!!'
 
