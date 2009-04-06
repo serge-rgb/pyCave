@@ -263,7 +263,8 @@ class Menu(Frame):
     def mouse(self,button,st,x,y):
         if st == GLUT_UP:
             checkButtons(self.buttonList,x,y)
-            print x,y
+            if pyCaveOptions['debug']:
+                print x,y
         if pyCaveOptions['debug']:
             pass
         

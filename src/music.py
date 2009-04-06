@@ -14,8 +14,8 @@
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
 import pygame.mixer as mixer
-
-mixer.init(44100,-16,6,3072)
+mixer.init()
+#mixer.init(44100,-16,2,3072)
 mixer.music.set_volume(1.0)
 
 def mute ():

@@ -45,6 +45,7 @@ class Game(Gameplay):
         if self.enable_shadows and self.light.shadowMap.disabled:
             print "Warning: Disabling shadows" 
             self.enable_shadows = False
+            glEnable(GL_TEXTURE_2D)
             
         self.light.look = (0, 0, 50)
         self.ambientLight = Light(self, (1, 1, 1, 1), (0,50,30,1), GL_LIGHT1, False)

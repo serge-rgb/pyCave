@@ -22,8 +22,11 @@ hasExt = {} #Key: extension module. Value: Boolean
 
 def printImportedExts ():
     print 'Imported extensions'
-    for e in extensions:
-        print e.EXTENSION_NAME
+    try:
+        for e in extensions:
+            print e#,e.EXTENSION_NAME3
+    except:
+        exit(-1)
         
 def checkExtensions():
     'Fill hasExt map with Booleans for each extension\'s availability '
@@ -34,6 +37,4 @@ def checkExtensions():
         print name, hasExt[e]
     print '------------------------------'
 
-
-
-
+        
