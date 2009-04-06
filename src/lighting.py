@@ -103,7 +103,14 @@ class ShadowMap:
         glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_COMPARE_MODE,GL_COMPARE_R_TO_TEXTURE)
 
         self.fbo = ext.fb_obj.glGenFramebuffersEXT(1)
-        ext.fb_obj.glBindFramebufferEXT(ext.fb_obj.GL_FRAMEBUFFER_EXT,self.fbo)
+        try:
+            ext.fb_obj.glBindFramebufferEXT(ext.fb_obj.GL_FRAMEBUFFER_EXT,self.fbo)
+        except Exception :
+            print "Error binding framebuffer"
+            print ext.fb_obj.GL_FRAMEBUFFER_EXT,self.fbo
+            raise
+            exit()
+            
         ext.fb_obj.glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,GL_DEPTH_ATTACHMENT_EXT,#GL_COLOR_ATTACHMENT0_EXT,
                                   GL_TEXTURE_2D,self.dtexture,0)
         glDrawBuffer(GL_NONE)

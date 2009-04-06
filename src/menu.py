@@ -34,7 +34,7 @@ def displayFullWindowTexture(texture):
 
     glMultiTexCoord2f(GL_TEXTURE1,0,0)
     glVertex3f(-1,-1,0)
-
+            
     glMultiTexCoord2f(GL_TEXTURE1,0,1)
     glVertex3f(-1,1,0)
 
@@ -267,10 +267,11 @@ class Menu(Frame):
                 print x,y
         if pyCaveOptions['debug']:
             pass
-        
+
     def getControl(self):
         Frame.getControl(self)
         music.play()
+        
     def idle(self):
         glutPostRedisplay()
                 

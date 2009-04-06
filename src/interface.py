@@ -32,11 +32,26 @@ GL_TEXTURE1 is the color texture
 """
 pyCaveOptions = {
     'shadows':True,#False,
-    'debug':True,#False
+    'debug':False,#True
     'window_size':(1024,540),
     'show_fps':True,
     'mortal':True#False
     }
+    
+def debug(f):
+    '''
+    Decorator.
+    Function will enable pyCave debugging bjust for itself.
+    Won\'t change anything if debugging is already enabled.
+    '''
+    def decorator(*args,**kargs):
+        prevState = pyCaveOptions['debug']
+        pyCaveOptions['debug'] = True
+        f(*args,**kargs)
+        pyCaveOptions['debug'] = prevState
+    decorator.__name__ = f.__name__
+    return decorator
+    
 
 import extensions as ext
 
@@ -82,7 +97,7 @@ class Frame():
         """
         
         pass
-    
+
     def getControl(self):
         """Be useful"""
         if pyCaveOptions ['debug']:
@@ -99,7 +114,7 @@ class Frame():
         glutPassiveMotionFunc(self.passiveMotion)
         glutIdleFunc (self.idle)
         glutPostRedisplay()
-
+        
 def checkFunctionality():
     'Redefine functions with GL extensions.'
     try:
