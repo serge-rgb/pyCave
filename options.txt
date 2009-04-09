@@ -1,0 +1,20 @@
+#This is the options file for pycave
+#Append # at the beggining of a line to comment
+#Statements are of the form "PARAMETER VALUE"
+#only one per line
+
+#Possible values:------------------------------
+#Integers
+#Booleans: True|False
+#String values are added by prefixing an 's': sHello World
+#------------------------------------------------------------
+
+#Parameters that are not in pyCaveOptions (interface.py) will
+#be added.
+
+mute True				   
+#shadows False
+debug True
+#tunnel_geom False
+#mortal False
+

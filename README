@@ -2,18 +2,13 @@ pyCave is a clone of the game SFCave for the palm pilot.
 
 To run, you will need to meet the following dependencies:
 
-2.5<=Python<3.0
-PyOpengl
-pyGame (Only the mixer module is necessary)
-
+Python (tested on 2.5,2.6. Not for Python 3)
+All other dependencies are included.
 
 About:
-
 I tried to keep it close to the original. The shadows are
 a completely unnecessary addition, but they look cool. They
-are also a good example of PyOpenGL doing something non-trivial.
-There is a daredevil bonus if you pass close enough to a
-bar and at an angle of more than 45 degrees.
+are also a good example of PyOpenGL doing something non-tri vial.
 If you stay alive long enough, you will enter hardcore mode;
 Then you probably won't survive to see the end of the tunnel.
 You might tell that the art leaves a lot to be desired. If you
@@ -22,8 +17,11 @@ are willing to make a better model of the ship,
 replace my model. Otherwise, I will eventually make a better model with
 decent textures.
 
-This is the first Beta version. It's feature-complete but it hasn't been
-tested on more than 3 machines (on linux and windows). If you have
-any problem you should give me the details so that I can fix the program.
+The game has been tested on:
+
+Ubuntu 8.10 x64 with Nvidia 8 series
+Windows Vista x64 with Nvidia 8 series
+MacOs 10.5 laptop with integrated Intel GMA x3100
+Windows XP laptop with integrated Intel (model?)
 
 I hope you enjoy the game! 

@@ -6,7 +6,7 @@ extensions.py
 Created by Sergio Gonzalez on 2009-03-20.
 Copyright (c) 2009 __MyCompanyName__. All rights reserved.
 """
-
+from interface import pyCaveOptions
 from OpenGL import extensions as exts
 
 #------------------------------
@@ -30,11 +30,16 @@ def printImportedExts ():
         
 def checkExtensions():
     'Fill hasExt map with Booleans for each extension\'s availability '
-    print 'Summary for Extensions:--------------------'
+    
+    if pyCaveOptions['debug']:
+        print 'Summary for Extensions:--------------------'
     for e in extensions:
         name = e.EXTENSION_NAME
         hasExt [e] = exts.hasGLExtension (name)
-        print name, hasExt[e]
-    print '------------------------------'
+        if pyCaveOptions['debug']:
+            print name, hasExt[e]
+    if pyCaveOptions['debug']:
+        print '------------------------------'
 
         
+    

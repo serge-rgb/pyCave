@@ -13,7 +13,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with pyCave.  If not, see <http://www.gnu.org/licenses/>.
 
-#from OpenGL.GL import *
 import interface as intf
 from tga import *
 import random

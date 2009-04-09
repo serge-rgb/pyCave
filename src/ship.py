@@ -36,7 +36,7 @@ class Ship(Model):
         
         Model.__init__(self,'media/ship.obj','media/ship.tga')
         
-        spr = Sprite(smokeScale)
+        spr = Sprite(smokeScale,randomize=True)
         spr.newTexture(smokefname)
         self.image = spr.image
         
@@ -48,7 +48,7 @@ class Ship(Model):
     def reset(self):
         self.smoke = [] #List of smoke sprites.
 
-        spr = Sprite(smokeScale)
+        spr = Sprite(smokeScale,randomize=True)
         spr.setTexture(self.image)
         self.smoke.append(spr)
         self.addSmoke()
@@ -118,7 +118,7 @@ class Ship(Model):
     #Smoke stuff=======================
 
     def addSmoke(self):
-        spr = Sprite(smokeScale)
+        spr = Sprite(smokeScale,randomize=True)
         spr.setTexture(self.image)
         spr.ypos = self.pos[1]
         spr.trans = 5 

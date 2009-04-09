@@ -20,7 +20,7 @@ import random
 import interface as intf
 
 #Default vertices per ring
-vertNum = 35
+vertNum = 35#5
 
 class Obstacle:
     '''
@@ -185,6 +185,7 @@ class Tunnel:
         self.list = intf.glGenLists(1)
         intf.glNewList(self.list,intf.GL_COMPILE)
         intf.glBegin(intf.GL_QUADS)
+        #intf.glBegin(intf.GL_LINE_STRIP)
         for i in xrange(len(self.rings) - 1):
             for j in xrange(vertNum):
                 r1 = self.rings[i]
@@ -207,12 +208,13 @@ class Tunnel:
                 #All quads in the Tunnel are coplanar. There is only need for one normal.
                 n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
 
-                #SLOW: This func. calls are the bottleneck:
-                intf.glNormal3fv(n)
-                intf.glVertex3fv(x)
-                intf.glVertex3fv(y)
-                intf.glVertex3fv(z)
-                intf.glVertex3fv(w)
+                #TODO: This func. calls are the startup bottleneck:
+                if intf.pyCaveOptions['tunnel_geom']:
+                    intf.glNormal3fv(n)
+                    intf.glVertex3fv(x)
+                    intf.glVertex3fv(y)
+                    intf.glVertex3fv(z)
+                    intf.glVertex3fv(w)
         intf.glEnd()
 
         intf.glEndList()

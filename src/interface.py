@@ -35,25 +35,14 @@ pyCaveOptions = {
     'debug':False,#True
     'window_size':(1024,540),
     'show_fps':True,
-    'mortal':True#False
+    'mortal':True,#False
+    'tunnel_geom':True,
+    'mute':False
+    
     }
-    
-def debug(f):
-    '''
-    Decorator.
-    Function will enable pyCave debugging bjust for itself.
-    Won\'t change anything if debugging is already enabled.
-    '''
-    def decorator(*args,**kargs):
-        prevState = pyCaveOptions['debug']
-        pyCaveOptions['debug'] = True
-        f(*args,**kargs)
-        pyCaveOptions['debug'] = prevState
-    decorator.__name__ = f.__name__
-    return decorator
-    
 
 import extensions as ext
+import options
 
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -82,6 +71,9 @@ class Frame():
         
     def mouse(self,button,state,x,y):
         """handle mouse input"""
+        if pyCaveOptions['debug']:
+            if state == GLUT_UP:
+                print x,y
         pass
 
     def passiveMotion(self,x,y):
@@ -113,6 +105,7 @@ class Frame():
         glutMouseFunc(self.mouse)
         glutPassiveMotionFunc(self.passiveMotion)
         glutIdleFunc (self.idle)
+        #TODO: add out of focus callback.
         glutPostRedisplay()
         
 def checkFunctionality():
@@ -123,12 +116,8 @@ def checkFunctionality():
         print 'Error finding extension names. You probably don \'t have the latest version of pyOpenGL'
         exit ()
     
-    if not ext.hasExt[ext.fb_obj]:
-        print 'TODO: Disable shadows!!!'
-
     #Checking for multitexture
     if not bool (glMultiTexCoord2f):
-        print 'No multitexturing support. Importing extension'
         if ext.hasExt[ext.multitext]:
             global glMultiTexCoord2fv,glMultiTexCoord2f,glActiveTexture,GL_TEXTURE0,GL_TEXTURE1
             glMultiTexCoord2f = ext.multitext.glMultiTexCoord2fARB
@@ -136,7 +125,9 @@ def checkFunctionality():
             glActiveTexture = ext.multitext.glActiveTextureARB
             GL_TEXTURE0 = ext.multitext.GL_TEXTURE0_ARB
             GL_TEXTURE1 = ext.multitext.GL_TEXTURE1_ARB
-            print 'Using ARB multitexturing'
+            if pyCaveOptions['debug']:
+                print 'No multitexturing support. Importing extension'
+                print 'Using ARB multitexturing'
         else:
             print 'No multitexturing functionality found. Exiting.'
             exit (-1)
@@ -195,6 +186,8 @@ def glSettings():
 class _Context():
     '''Thin abstraction over GLUT.'''
     def __init__(self, w,h,title):
+        options.readOpts()
+        
         if pyCaveOptions ['debug']:
             print 'New context object', self
         print '''
@@ -220,6 +213,7 @@ class _Context():
 
         checkFunctionality ()        
         glSettings()
+        
 
     def aspect(self):
         """Get the aspect ratio"""

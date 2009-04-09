@@ -15,7 +15,7 @@
 
 import pygame.mixer as mixer
 mixer.init()
-#mixer.init(44100,-16,2,3072)
+mixer.init(48100,-16,2,3072)
 mixer.music.set_volume(1.0)
 
 def mute ():

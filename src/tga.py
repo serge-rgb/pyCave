@@ -20,6 +20,7 @@
 
 #from OpenGL.GL import *
 import interface as intf
+from interface import pyCaveOptions
 import struct
 
 #Only loads 24 or 32 bit uncompressed TGA textures
@@ -54,7 +55,8 @@ class TgaTexture:
 		imgSize = pixnum * self.internFormat
 		self.texels = f.read(imgSize)
 		f.close()
-#		print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
+		if pyCaveOptions['debug']:
+		    print 'TGALOADER: Loaded', self.bpp, 'bit,',self.size[0],'x',self.size[1],'image:',fname
 		
 	def newGLTexture(self):
 		self.name = intf.glGenTextures(1)
@@ -71,5 +73,6 @@ class TgaTexture:
 				  0,self.internFormat,
 				  self.size[0],self.size[1],0,
 				  self.texFormat,intf.GL_UNSIGNED_BYTE,self.texels)
-		
-#		print 'TGALOADER: Stored 2D texture in OpenGL with name', self.name
+		if pyCaveOptions['debug']:
+		    print 'TGALOADER: Stored 2D texture in OpenGL with name', self.name
+			

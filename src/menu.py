@@ -5,6 +5,7 @@ import highscores
 import glutils
 import time
 import music
+from decorators import callparent
 
 def displayFullWindowTexture(texture):
     '''
@@ -104,7 +105,7 @@ class HelpScreen(Frame):
         if ord(key) == 27: #Escape
             
             self.parent.getControl()
-                
+    @callparent(Frame)            
     def mouse(self,button,st,x,y):
         if st == GLUT_UP:
             checkButtons(self.buttonList,x,y)
@@ -115,12 +116,16 @@ class HelpScreen(Frame):
 class HighScores(Frame):
     def __init__(self,parent,):
         self.parent = parent
-                
+        self.currscore = 0
     def display(self):
         glutils.clearGL()
+        if self.currscore != 0:
+            glutils.drawString("Your score: "+str(int(self.currscore)),
+                               translate=(0,0.8),
+                               scale=1)
         
         glutils.drawString("Highscores:  (Press Esc to continue)",
-                           translate=(0,0.8))
+                           translate=(0,0.6))
         glutSwapBuffers()
         
         def showElem (i,offset,elem):
@@ -129,7 +134,7 @@ class HighScores(Frame):
                                translate=(0.4,offset),
                                scale=0.8)
             glPopMatrix()
-        offset = 0.6
+        offset = 0.4
         i = 1
         for elem in reversed(highscores.load()):
             showElem(i,offset,elem)
@@ -181,19 +186,21 @@ class AskName(Frame):
         if ord(key) == 13: #Enter
             if self.playerName!="":
                 highscores.maybeStore(self.playerName,self.score)
+            self.hsFrame.currscore = self.score
             self.exitToHighscores()
                 
         if ord(key) == 127: #delete key (8 in linux)
             self.playerName = self.playerName[0:-1]
             return
         if ord(key) == 0x1b: #exit
+            self.hsFrame.currscore = 0
             self.exitToHighscores()
         self.playerName+=key
+        self.playerName = self.playerName.strip()
+        
     def idle(self):
         glutPostRedisplay()
         
-
-muted = True
 
 class Menu(Frame):
     """
@@ -201,6 +208,7 @@ class Menu(Frame):
     """
     def __init__(self):
         self.game = None #
+        self.playCount = 0
         #Make the loading screen call loadGame for us
         loadscreen = LoadingScreen (self)
         self.logo = TgaTexture("media/pyCaveMenu.tga")
@@ -208,7 +216,8 @@ class Menu(Frame):
 
         music.new_music("media/pycave.mp3")
         music.play()
-
+        if pyCaveOptions['mute']:
+            music.mute()
         #MENU ITEMS------------------------------
         self.helpMenu= HelpScreen(self)
         self.hscores = HighScores(self)
@@ -236,6 +245,7 @@ class Menu(Frame):
         self.game = Renderer(self)
 
     def startGame(self):
+        self.playCount+=1
         music.stop()
         self.game.gameplay.clean()
         self.game.gameplay.start()
@@ -257,23 +267,23 @@ class Menu(Frame):
                 music.stop()
                 self.game.getControl()
             else: #Not playing and pressed esc
+                print 'You played',self.playCount,'times.'
                 exit()
             
-                
     def mouse(self,button,st,x,y):
         if st == GLUT_UP:
             checkButtons(self.buttonList,x,y)
-            if pyCaveOptions['debug']:
-                print x,y
         if pyCaveOptions['debug']:
             pass
 
     def getControl(self):
         Frame.getControl(self)
+        glutPostRedisplay()
         music.play()
         
     def idle(self):
         glutPostRedisplay()
+        
                 
         
 
@@ -281,3 +291,4 @@ class Menu(Frame):
         
     
 
+        
