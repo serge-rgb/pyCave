@@ -3,7 +3,7 @@ pyCave is a clone of the game SFCave for the palm pilot.
 To run, you will need to meet the following dependencies:
 
 Python (tested on 2.5,2.6. Not for Python 3)
-All other dependencies are included.
+PyGame >=1.8
 
 About:
 I tried to keep it close to the original. The shadows are
