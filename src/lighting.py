@@ -132,9 +132,8 @@ class ShadowMap:
             if enum == ext.fb_obj.GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
                 print "incomplete read buffer"
                 
-            if pyCaveOptions ['debug']:
-                print 'FRAMEBUFFER_STATUS', enum
-                exit ()
+            print 'FRAMEBUFFER_STATUS', enum
+            exit ()
                 
         ext.fb_obj.glBindFramebufferEXT(GL_FRAMEBUFFER_EXT,0)
           

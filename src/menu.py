@@ -189,7 +189,7 @@ class AskName(Frame):
             self.hsFrame.currscore = self.score
             self.exitToHighscores()
                 
-        if ord(key) == 127: #delete key (8 in linux)
+        if ord(key) == DELETE_KEY: #delete key (8 in linux)
             self.playerName = self.playerName[0:-1]
             return
         if ord(key) == 0x1b: #exit

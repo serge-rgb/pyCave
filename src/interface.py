@@ -30,15 +30,17 @@ Multitexturing convention
 GL_TEXTURE0 is the shadow texture (Implement multiple shadowing?)
 GL_TEXTURE1 is the color texture
 """
+import os
+DELETE_KEY = 127 if os.uname()[0]=='Darwin' else 8
+
 pyCaveOptions = {
     'shadows':True,#False,
     'debug':False,#True
     'window_size':(1024,540),
-    'show_fps':True,
+    'show_fps':False,
     'mortal':True,#False
     'tunnel_geom':True,
     'mute':False
-    
     }
 
 import extensions as ext
@@ -190,6 +192,7 @@ class _Context():
         
         if pyCaveOptions ['debug']:
             print 'New context object', self
+            print 'Delete key is: ', DELETE_KEY
         print '''
         \n\n\n------------------------------
         Pycave\n------------------------------
