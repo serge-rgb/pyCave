@@ -167,6 +167,7 @@ class AskName(Frame):
         if iscandidate:
             self.getControl()
         else:
+            self.hsFrame.currscore=0
             self.hsFrame.getControl()
         
     def display (self):
