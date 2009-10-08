@@ -201,7 +201,7 @@ class _Context():
         self.w = w
         self.h = h
         self.title = title
-        glutInit([])
+        glutInit()
         glutInitWindowSize (self.w,self.h)
         glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH )
         

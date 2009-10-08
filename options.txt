@@ -25,7 +25,7 @@ debug True
 #tunnel_geom False
 
 #--- Default is True
-#mortal False
+mortal False
 
 #--- Default is False
-#show_fps True
+show_fps True

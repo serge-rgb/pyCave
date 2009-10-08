@@ -186,39 +186,83 @@ class Tunnel:
         intf.glNewList(self.list,intf.GL_COMPILE)
         intf.glBegin(intf.GL_QUADS)
         #intf.glBegin(intf.GL_LINE_STRIP)
+
+        def diffVectors(x,y):
+            return (x[0] - y[0], x[1] - y[1] , x[2] - y[2]) #x-y
+
+        def cross(u,v):
+            return (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
+        
         for i in xrange(len(self.rings) - 1):
             for j in xrange(vertNum):
                 r1 = self.rings[i]
                 r2 = self.rings[i+1]
-
-                # x o-----------o w
-                #   |           |
-                #   |           |
-                # y o-----------o z
+                #             to--------o u
+                #              |        |
+                #              |        |
+                # p o--------x o--------o w
+                #   |          |        |  
+                #   |          |        |  
+                # q o--------y o--------o z
+                
+                #                        
+                #   r0        r1        r2       r3
+                #             
 
                 x = r1.verts[j]
                 y = r1.verts[j+1]
                 z = r2.verts[j+1]
                 w = r2.verts[j]
-                
-                u = (x[0] - y[0], x[1] - y[1] , x[2] - y[2]) #x-y
-                v = (z[0] - y[0], z[1] - y[1] , z[2] - y[2]) #z-y
-                
-                #Cross product normal
-                #All quads in the Tunnel are coplanar. There is only need for one normal.
-                n = (u[1]*v[2] - u[2]*v[1] , u[0]*v[2] - u[2]*v[0], u[0]*v[1] - u[1]*v[0])
+                try:
+                    r0 = self.rings[i-1]
+                    p = r0.verts[j]
+                    q = r0.verts[j+1]
+                except:
+                    p = w
+                    q = y
+                    
+                try:
+                    t = r1.verts[j-1]
+                except:
+                    t = y
+                try:
+                    u = r2.verts[j-1]
+                except:
+                    u = z
+                    
+                    
+                #Cross product normals
+                if j==0:
+                    nx =  cross(diffVectors(t,x),
+                                diffVectors(p,x))
+                    nw =  cross(diffVectors(u,w),
+                                diffVectors(x,w))
+                else:
+                    nx =  cross(diffVectors(p,x),
+                            diffVectors(t,x))
+                    nw =  cross(diffVectors(x,w),
+                                diffVectors(u,w))
+                    
+                ny = cross(diffVectors(q,y),
+                          diffVectors(x,y))
 
+                
+                nz =  cross(diffVectors(y,z),
+                            diffVectors(w,z))
+                
                 #TODO: This func. calls are the startup bottleneck:
                 if intf.pyCaveOptions['tunnel_geom']:
-                    intf.glNormal3fv(n)
+                    intf.glNormal3fv(nx)
                     intf.glVertex3fv(x)
+                    intf.glNormal3fv(ny)
                     intf.glVertex3fv(y)
+                    intf.glNormal3fv(nz)
                     intf.glVertex3fv(z)
+                    intf.glNormal3fv(nw)
                     intf.glVertex3fv(w)
         intf.glEnd()
-
         intf.glEndList()
-#        print 'Done.'
+        
 
     def createObstacleList(self):
         self.objlist = intf.glGenLists(1)
