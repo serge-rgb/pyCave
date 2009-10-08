@@ -13,7 +13,7 @@
       }else if (PyInt_Check (tmp)){
 	$1[i] = (double) PyInt_AsLong (tmp);
       }else{
-	PyErr_SetString(PyExc_TypeError,"CEXT: not a float inside list");
+	PyErr_SetString(PyExc_TypeError,"CEXT: not a float or int inside tuple");
 	return NULL;
       }
     }
