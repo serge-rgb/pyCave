@@ -18,9 +18,14 @@
 import math
 import random
 import interface as intf
+try:
+    import cext
+except:
+    print "Error: no cext extension available"
+    pyCaveOptions['cext_available']=False
 
 #Default vertices per ring
-vertNum = 35#5
+vertNum = 25#35
 
 class Obstacle:
     '''
@@ -251,15 +256,22 @@ class Tunnel:
                             diffVectors(w,z))
                 
                 #TODO: This func. calls are the startup bottleneck:
+                
                 if intf.pyCaveOptions['tunnel_geom']:
-                    intf.glNormal3fv(nx)
-                    intf.glVertex3fv(x)
-                    intf.glNormal3fv(ny)
-                    intf.glVertex3fv(y)
-                    intf.glNormal3fv(nz)
-                    intf.glVertex3fv(z)
-                    intf.glNormal3fv(nw)
-                    intf.glVertex3fv(w)
+                    if intf.pyCaveOptions['cext_available']:
+                        cext.sendVertex(nx,x)
+                        cext.sendVertex(ny,y)
+                        cext.sendVertex(nz,z)
+                        cext.sendVertex(nw,w)
+                    else:
+                        intf.glNormal3fv(nx)
+                        intf.glVertex3fv(x)
+                        intf.glNormal3fv(ny)
+                        intf.glVertex3fv(y)
+                        intf.glNormal3fv(nz)
+                        intf.glVertex3fv(z)
+                        intf.glNormal3fv(nw)
+                        intf.glVertex3fv(w)
         intf.glEnd()
         intf.glEndList()
         

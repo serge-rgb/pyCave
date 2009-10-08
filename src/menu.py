@@ -281,7 +281,7 @@ class Menu(Frame):
         Frame.getControl(self)
         glutPostRedisplay()
         music.play()
-        
+                
     def idle(self):
         glutPostRedisplay()
         

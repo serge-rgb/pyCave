@@ -40,7 +40,8 @@ pyCaveOptions = {
     'show_fps':False,
     'mortal':True,#False
     'tunnel_geom':True,
-    'mute':False
+    'mute':False,
+    'cext_available':True
     }
 
 import extensions as ext
