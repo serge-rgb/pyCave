@@ -1,0 +1,9 @@
+#!/bin/bash
+
+# You need to have done this:
+# $> swig -python cext.i
+
+dname=`dirname "$0"`
+cd $dname"/src"
+python setup.py build_ext --inplace
+cd ..

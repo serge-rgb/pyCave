@@ -21,7 +21,7 @@ import interface as intf
 try:
     import cext
 except:
-    print "Warning: no cext extension available. Startup time will be long."
+    print "Warning: no cext extension available. Startup time will be long.\n Run the make_cext script."
     intf.pyCaveOptions['cext_available']=False
 
 #Default vertices per ring
