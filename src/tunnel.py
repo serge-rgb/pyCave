@@ -21,8 +21,8 @@ import interface as intf
 try:
     import cext
 except:
-    print "Error: no cext extension available"
-    pyCaveOptions['cext_available']=False
+    print "Warning: no cext extension available. Startup time will be long."
+    intf.pyCaveOptions['cext_available']=False
 
 #Default vertices per ring
 vertNum = 25#35
