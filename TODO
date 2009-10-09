@@ -1,11 +1,14 @@
 Document classes/funcs
 
 Game:
+Make easy/hard modes
 Make a ship.
 Make objects.
 Add shadow-casting-spotlight to ship(?)
 
 Effects:
+Do background magic
+Death explosion
 Modify shadow to match new camera
 Make tunnel self-casting?
 

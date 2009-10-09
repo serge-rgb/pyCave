@@ -92,7 +92,7 @@ class Tunnel:
         #The speed by which the tunnel gets smaller
         self.red = 0.005
         #The speed by which it moves (units per second)
-        self.vel = 55
+        self.vel = 85
         #How far apart are the rings
         self.dz = 20
         #Display list
@@ -143,7 +143,7 @@ class Tunnel:
         
         
         #Add an obstacle on a random basis
-        if len(self.rings)% 10 == random.randint(0,9) and len(self.rings) > 5:
+        if len(self.rings) > 7 and (len(self.rings) %7 == 0 or len(self.rings)% 10 == random.randint(0,9)):
             ring.addObstacle(self.scale)
 
         try:    

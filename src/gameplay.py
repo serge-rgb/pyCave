@@ -86,13 +86,13 @@ class Gameplay():
         interlude = HardcoreInterlude(self.renderer)
                 
         self.hardcore=True
-        self.tunnel.vel = 100
+        self.tunnel.vel = 160
         self.scorePerSecond*=3
         self.paused=True
 
     def notHardcore (self):
         self.hardcore = False
-        self.tunnel.vel = 55
+        self.tunnel.vel = 85
         self.scorePerSecond=10
 
     def togglePause(self):
