@@ -74,7 +74,7 @@ class Ring:
 
 class Tunnel:
     def __init__(self):
-        self.numRings = 370
+        self.numRings = 276
         self.rings = []
         self.maxRad = 40#40
         self.minRad = 30#30

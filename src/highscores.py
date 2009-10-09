@@ -39,7 +39,7 @@ def load ():
         Highscore('Rodrigo',59),
         Highscore('Daniel',823),
         Highscore('Matias',1234),
-        Highscore('Sergio',2500)
+        Highscore('Sergio',2000)
         ]
     try:
         hsfile = open("media/hs.dat",'r')

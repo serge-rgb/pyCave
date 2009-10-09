@@ -13,7 +13,7 @@
 #be added.
 
 #--- Default is false
-#mute True
+mute True
 
 #--- Default is True
 #shadows False
