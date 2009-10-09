@@ -27,6 +27,7 @@ transIntervalX = 0.8
 scaleInterval = 1.1
 rotateInterval = -180 
 scaleLimit = 2.5
+numSprites = 30
 
 class Ship(Model):
     '''
@@ -116,26 +117,31 @@ class Ship(Model):
         self.freeList()
 
     #Smoke stuff=======================
-
+        
+    def resetSprite(self,spr):
+        spr.ypos = self.pos[1]
+        spr.xpos=0.0
+        spr.trans = 5
+        spr.scale=smokeScale
+        
     def addSmoke(self):
         spr = Sprite(smokeScale,randomize=True)
         spr.setTexture(self.image)
-        spr.ypos = self.pos[1]
-        spr.trans = 5 
+        self.resetSprite(spr)
         self.smoke.insert(0,spr)
         
     def smokeIdle(self,diff):
         if self.smoke[0].trans >= 8:
-            self.addSmoke()
+            if len(self.smoke) < numSprites:
+                self.addSmoke()
+                
         for spr in self.smoke:
             spr.trans += transInterval*diff
             spr.xpos -= transIntervalX*diff
             spr.scale += scaleInterval*diff
             spr.rotate += rotateInterval*diff
             if spr.scale >= scaleLimit:
-                self.smoke.remove(spr)
-                if len(self.smoke) == 0:
-                    self.addSmoke()
+                self.resetSprite(spr)
 
     def drawSmoke(self):
         for spr in self.smoke:

@@ -4,14 +4,10 @@ Game:
 Make a ship.
 Make objects.
 Add shadow-casting-spotlight to ship(?)
-Prettify tunnel
 
 Effects:
 Modify shadow to match new camera
 Make tunnel self-casting?
 
 ?Write shader for non-black shadows
-
-Polishing:
-Make tunnel display creation fast.
 

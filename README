@@ -2,13 +2,25 @@ pyCave is a clone of the game SFCave for the palm pilot.
 
 To run, you will need to meet the following dependencies:
 
-Python (tested on 2.5,2.6. Not for Python 3)
+Python >=2.5
 PyGame >=1.8
+
+Run the script to build the C extension
+
+    $>./make_cext
+
+It is not necessary, but startup time is criminal without it.
+
+Then you can run the game.
+
+$>./pycave
+
+
 
 About:
 I tried to keep it close to the original. The shadows are
 a completely unnecessary addition, but they look cool. They
-are also a good example of PyOpenGL doing something non-tri vial.
+are also a good example of PyOpenGL doing something non-trivial.
 If you stay alive long enough, you will enter hardcore mode;
 Then you probably won't survive to see the end of the tunnel.
 You might tell that the art leaves a lot to be desired. If you
@@ -21,7 +33,22 @@ The game has been tested on:
 
 Ubuntu 8.10 x64 with Nvidia 8 series
 Windows Vista x64 with Nvidia 8 series
-MacOs 10.5 laptop with integrated Intel GMA x3100
+MacOs 10.5 laptop with integrated Intel GMA x3100 (Only works on Python 2.6 atm...)
 Windows XP laptop with integrated Intel (model?)
 
 I hope you enjoy the game! 
+
+============================================================
+Building a fresh checkout
+============================================================
+
+If you checked out a fresh version from SVN, you need SWIG to
+create the extension.
+Go to src/ and do:
+
+   $> swig -python cext.i
+
+Uncompress PyOpenGL.tar.gz into src/ so
+that pyCave has a local, tested, version of the OpenGL module.
+
+If you're having graphics problems after that, then it's a bug ;)
