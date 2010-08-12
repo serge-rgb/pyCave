@@ -126,7 +126,7 @@ class HighScores(Frame):
         
         glutils.drawString("Highscores:  (Press Esc to continue)",
                            translate=(0,0.6))
-        glutSwapBuffers()
+        #glutSwapBuffers()
         
         def showElem (i,offset,elem):
             glPushMatrix() 
@@ -258,7 +258,7 @@ class Menu(Frame):
         
     def display(self):
         displayFullWindowTexture(self.logo)
-        glutSwapBuffers()
+        #glutSwapBuffers()
 
     def keyboard(self,key,x,y):
         if ord(key) == 27: #esc
@@ -287,7 +287,8 @@ class Menu(Frame):
         
                 
         
-
+if __name__ == '__main__':
+    import main
 
         
     
