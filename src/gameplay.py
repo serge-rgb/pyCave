@@ -128,7 +128,8 @@ class Gameplay():
             self.ship.reset()
             
         self.score+=diff*self.scorePerSecond
-        self.fps = 1/diff
+        if diff!=0:
+            self.fps = 1/diff
         
         self.elapsedTime += diff
         self.lastTime = time.time()

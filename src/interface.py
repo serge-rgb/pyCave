@@ -31,7 +31,11 @@ GL_TEXTURE0 is the shadow texture (Implement multiple shadowing?)
 GL_TEXTURE1 is the color texture
 """
 import os
-DELETE_KEY = 127 if os.uname()[0]=='Darwin' else 8
+
+try:
+    DELETE_KEY = 127 if os.uname()[0]=='Darwin' else 8
+except:
+    DELETE_KEY = 8 #not on MacOS/Linux
 
 pyCaveOptions = {
     'shadows':True,#False,
